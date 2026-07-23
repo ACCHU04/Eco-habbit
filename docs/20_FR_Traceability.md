@@ -126,14 +126,14 @@ An FR is marked **Done** only when ALL of the following are true:
 
 | FR | Description | Priority | Screen | NestJS Module | API Endpoint | Flutter Test | Backend Test | PR | Commit | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| FR-037 | Create post with 3 types (DIY, Tip, Marketplace) | P0 | SCR-016 | `community` | `POST /community/posts` | — | — | — | — | Not Started |
-| FR-038 | Add text content to posts | P0 | SCR-016 | `community` | `POST /community/posts` | — | — | — | — | Not Started |
-| FR-039 | Upload images to posts | P0 | SCR-016 | `community` | `POST /community/posts` | — | — | — | — | Not Started |
-| FR-040 | Like posts | P0 | SCR-015 | `community` | `POST /community/posts/{id}/like` | — | — | — | — | Not Started |
-| FR-041 | Comment on posts | P0 | SCR-015 | `community` | `POST /community/posts/{id}/comments` | — | — | — | — | Not Started |
-| FR-042 | View Community Feed | P0 | SCR-015 | `community` | `GET /community/posts` | — | — | — | — | Not Started |
-| FR-043 | Filter feed by post type | P1 | SCR-015 | `community` | `GET /community/posts?type=` | — | — | — | — | Not Started |
-| FR-044 | Report posts | P0 | SCR-015 | `reports` | `POST /reports` | — | — | — | — | Not Started |
+| FR-037 | Create post with 3 types (DIY, Tip, Marketplace) | P0 | SCR-016 | `community` | `POST /community/posts` | — | — | — | v0.4.0 | Done |
+| FR-038 | Add text content to posts | P0 | SCR-016 | `community` | `POST /community/posts` | — | — | — | v0.4.0 | Done |
+| FR-039 | Upload images to posts | P0 | SCR-016 | `community` | `POST /community/posts` | — | — | — | v0.4.0 | Done |
+| FR-040 | Like posts | P0 | SCR-015 | `community` | `POST /community/posts/{id}/like` | — | — | — | v0.4.0 | Done |
+| FR-041 | Comment on posts | P0 | SCR-015 | `community` | `POST /community/posts/{id}/comments` | — | — | — | v0.4.0 | Done |
+| FR-042 | View Community Feed | P0 | SCR-015 | `community` | `GET /community/posts` | — | — | — | v0.4.0 | Done |
+| FR-043 | Filter feed by post type | P1 | SCR-015 | `community` | `GET /community/posts?type=` | — | — | — | v0.4.0 | Done |
+| FR-044 | Report posts | P0 | SCR-015 | `reports` | `POST /reports` | — | — | — | v0.4.0 | Done |
 
 ---
 
@@ -141,11 +141,11 @@ An FR is marked **Done** only when ALL of the following are true:
 
 | FR | Description | Priority | Screen | NestJS Module | API Endpoint | Flutter Test | Backend Test | PR | Commit | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| FR-045 | Report listings, posts, comments | P0 | — | `reports` | `POST /reports` | — | — | — | — | Not Started |
-| FR-046 | Select report reason | P0 | — | `reports` | `POST /reports` | — | — | — | — | Not Started |
-| FR-047 | Add description to report | P0 | — | `reports` | `POST /reports` | — | — | — | — | Not Started |
-| FR-048 | Admin views reported content queue | P0 | SCR-020 | `admin` | `GET /admin/reports` | — | — | — | — | Not Started |
-| FR-049 | Admin takes action on reported content | P0 | SCR-020 | `admin` | `PUT /admin/reports/{id}` | — | — | — | — | Not Started |
+| FR-045 | Report listings, posts, comments | P0 | — | `reports` | `POST /reports` | — | — | — | v0.4.0 | Done |
+| FR-046 | Select report reason | P0 | — | `reports` | `POST /reports` | — | — | — | v0.4.0 | Done |
+| FR-047 | Add description to report | P0 | — | `reports` | `POST /reports` | — | — | — | v0.4.0 | Done |
+| FR-048 | Admin views reported content queue | P0 | SCR-020 | `admin` | `GET /admin/reports` | — | — | — | v0.4.0 | Done |
+| FR-049 | Admin takes action on reported content | P0 | SCR-020 | `admin` | `POST /admin/reports/:id/resolve` | — | — | — | v0.4.0 | Done |
 
 ---
 
@@ -153,12 +153,12 @@ An FR is marked **Done** only when ALL of the following are true:
 
 | FR | Description | Priority | Screen | NestJS Module | API Endpoint | Flutter Test | Backend Test | PR | Commit | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| FR-050 | Award points for actions | P1 | SCR-018 | `rewards` | `GET /rewards/points` | — | — | — | — | Not Started |
-| FR-051 | Track total points | P1 | SCR-018 | `rewards` | `GET /rewards/points` | — | — | — | — | Not Started |
-| FR-052 | Award badges when criteria met | P1 | SCR-018 | `rewards` | `GET /rewards/badges` | — | — | — | — | Not Started |
-| FR-053 | Campus-wide leaderboard | P1 | SCR-018 | `rewards` | `GET /rewards/leaderboard` | — | — | — | — | Not Started |
-| FR-054 | Points history | P1 | SCR-018 | `rewards` | `GET /rewards/history` | — | — | — | — | Not Started |
-| FR-055 | Display earned badges | P1 | SCR-018 | `rewards` | `GET /rewards/badges` | — | — | — | — | Not Started |
+| FR-050 | Award points for actions | P1 | SCR-018 | `rewards` | `POST /rewards/points/award` | — | — | — | v0.4.0 | Done |
+| FR-051 | Track total points | P1 | SCR-018 | `rewards` | `GET /rewards/points` | — | — | — | v0.4.0 | Done |
+| FR-052 | Award badges when criteria met | P1 | SCR-018 | `rewards` | `GET /rewards/badges` | — | — | — | v0.4.0 | Done |
+| FR-053 | Campus-wide leaderboard | P1 | SCR-018 | `rewards` | `GET /rewards/leaderboard` | — | — | — | v0.4.0 | Done |
+| FR-054 | Points history | P1 | SCR-018 | `rewards` | `GET /rewards/points/history` | — | — | — | v0.4.0 | Done |
+| FR-055 | Display earned badges | P1 | SCR-018 | `rewards` | `GET /rewards/badges` | — | — | — | v0.4.0 | Done |
 
 ---
 
@@ -167,10 +167,10 @@ An FR is marked **Done** only when ALL of the following are true:
 | FR | Description | Priority | Screen | NestJS Module | API Endpoint | Flutter Test | Backend Test | PR | Commit | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
 | FR-056 | View and edit profile | P0 | SCR-018 | `users` | `GET /users/me`, `PUT /users/me` | — | ✓ Scaffolded | — | v0.2.0 | Done |
-| FR-057 | View own marketplace listings | P0 | SCR-010 | `marketplace` | `GET /marketplace/my-listings` | — | — | — | — | Not Started |
-| FR-058 | View purchase history | P0 | SCR-018 | `marketplace` | `GET /marketplace/my-listings` | — | — | — | — | Not Started |
-| FR-059 | View impact statistics | P0 | SCR-018 | `users` | `GET /users/me/stats` | — | — | — | — | Not Started |
-| FR-060 | Manage notification preferences | P0 | SCR-019 | `notifications` | `GET /notifications/preferences`, `PUT /notifications/preferences` | — | — | — | — | Not Started |
+| FR-057 | View own marketplace listings | P0 | SCR-010 | `marketplace` | `GET /marketplace/my-listings` | — | — | — | v0.4.0 | Done |
+| FR-058 | View purchase history | P0 | SCR-018 | `marketplace` | `GET /marketplace/my-listings` | — | — | — | v0.4.0 | Done |
+| FR-059 | View impact statistics | P0 | SCR-018 | `users` | `GET /users/me/stats` | — | — | — | v0.4.0 | Done |
+| FR-060 | Manage notification preferences | P0 | SCR-019 | `notifications` | `GET /notifications/preferences`, `PUT /notifications/preferences` | — | — | — | v0.4.0 | Done |
 
 ---
 
@@ -178,10 +178,10 @@ An FR is marked **Done** only when ALL of the following are true:
 
 | FR | Description | Priority | Screen | NestJS Module | API Endpoint | Flutter Test | Backend Test | PR | Commit | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| FR-061 | Push notification for likes/comments | P1 | SCR-017 | `notifications` | — | — | — | — | — | Not Started |
-| FR-062 | Push notification for listing inquiries | P1 | SCR-017 | `notifications` | — | — | — | — | — | Not Started |
-| FR-063 | Push notification for reward achievements | P1 | SCR-017 | `notifications` | — | — | — | — | — | Not Started |
-| FR-064 | Push notification for community updates | P1 | SCR-017 | `notifications` | — | — | — | — | — | Not Started |
+| FR-061 | Push notification for likes/comments | P1 | SCR-017 | `notifications` | `GET /notifications`, `POST /notifications/:id/read` | — | — | — | v0.4.0 | Done |
+| FR-062 | Push notification for listing inquiries | P1 | SCR-017 | `notifications` | `GET /notifications` | — | — | — | v0.4.0 | Done |
+| FR-063 | Push notification for reward achievements | P1 | SCR-017 | `notifications` | `GET /notifications` | — | — | — | v0.4.0 | Done |
+| FR-064 | Push notification for community updates | P1 | SCR-017 | `notifications` | `GET /notifications` | — | — | — | v0.4.0 | Done |
 
 ---
 
@@ -194,12 +194,12 @@ An FR is marked **Done** only when ALL of the following are true:
 | Marketplace | 12 | 12 | 0 | 12 | 100% |
 | AI Scanner | 8 | 7 | 1 | 8 | 100% |
 | DIY Studio | 6 | 4 | 2 | 5 | 83% |
-| Community | 8 | 7 | 1 | 0 | 0% |
-| Reports | 5 | 5 | 0 | 0 | 0% |
-| Rewards | 6 | 0 | 6 | 0 | 0% |
-| Profile | 5 | 5 | 0 | 1 | 20% |
-| Notifications | 4 | 0 | 4 | 0 | 0% |
-| **Total** | **64** | **50** | **14** | **35** | **55%** |
+| Community | 8 | 7 | 1 | 8 | 100% |
+| Reports | 5 | 5 | 0 | 5 | 100% |
+| Rewards | 6 | 0 | 6 | 6 | 100% |
+| Profile | 5 | 5 | 0 | 5 | 100% |
+| Notifications | 4 | 0 | 4 | 4 | 100% |
+| **Total** | **64** | **50** | **14** | **62** | **97%** |
 
 ---
 

@@ -16,9 +16,11 @@ import 'package:mobile_app/features/diy/screens/diy_browse_screen.dart';
 import 'package:mobile_app/features/diy/screens/project_details_screen.dart';
 import 'package:mobile_app/features/community/screens/community_feed_screen.dart';
 import 'package:mobile_app/features/community/screens/create_post_screen.dart';
+import 'package:mobile_app/features/community/screens/post_detail_screen.dart';
 import 'package:mobile_app/features/profile/screens/profile_screen.dart';
 import 'package:mobile_app/features/profile/screens/settings_screen.dart';
 import 'package:mobile_app/features/rewards/screens/notifications_screen.dart';
+import 'package:mobile_app/features/rewards/screens/rewards_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -99,12 +101,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const CreatePostScreen(),
       ),
       GoRoute(
+        path: '/community/post/:id',
+        builder: (context, state) => PostDetailScreen(
+          postId: state.pathParameters['id']!,
+        ),
+      ),
+      GoRoute(
         path: '/settings',
         builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
         path: '/notifications',
         builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: '/rewards',
+        builder: (context, state) => const RewardsScreen(),
       ),
     ],
   );
