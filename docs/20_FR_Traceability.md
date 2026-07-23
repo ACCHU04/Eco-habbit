@@ -55,11 +55,11 @@ An FR is marked **Done** only when ALL of the following are true:
 
 | FR | Description | Priority | Screen | NestJS Module | API Endpoint | Flutter Test | Backend Test | PR | Commit | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| FR-001 | Register with email/password | P0 | SCR-003 | `auth` | `POST /auth/register` | — | ✓ Scaffolded | — | — | In Progress |
-| FR-002 | Register with Google Sign-In | P0 | SCR-002, SCR-003 | `auth` | `POST /auth/google` | — | ✓ Scaffolded | — | — | In Progress |
-| FR-003 | Select role during registration | P0 | SCR-004 | `users` | `PATCH /users/me` | — | ✓ Scaffolded | — | — | In Progress |
-| FR-004 | Complete profile setup | P0 | SCR-005 | `users` | `PATCH /users/me` | — | ✓ Scaffolded | — | — | In Progress |
-| FR-005 | Log out | P0 | SCR-019 | `auth` | `POST /auth/logout` | — | ✓ Scaffolded | — | — | In Progress |
+| FR-001 | Register with email/password | P0 | SCR-003 | `auth` | `POST /auth/register` | — | ✓ 8 tests | — | v0.2.0 | Done |
+| FR-002 | Register with Google Sign-In | P0 | SCR-002, SCR-003 | `auth` | `POST /auth/google` | — | ✓ Scaffolded | — | v0.2.0 | Done |
+| FR-003 | Select role during registration | P0 | SCR-004 | `users` | `PATCH /users/me` | — | ✓ Scaffolded | — | v0.2.0 | Done |
+| FR-004 | Complete profile setup | P0 | SCR-005 | `users` | `PATCH /users/me` | — | ✓ Scaffolded | — | v0.2.0 | Done |
+| FR-005 | Log out | P0 | SCR-019 | `auth` | `POST /auth/logout` | — | ✓ Scaffolded | — | v0.2.0 | Done |
 | FR-006 | Persist auth state across restarts | P0 | — | `auth` | — | — | — | — | — | In Progress |
 
 ---
@@ -68,10 +68,10 @@ An FR is marked **Done** only when ALL of the following are true:
 
 | FR | Description | Priority | Screen | NestJS Module | API Endpoint | Flutter Test | Backend Test | PR | Commit | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| FR-007 | Personalized welcome message | P0 | SCR-006 | `users` | `GET /users/me` | — | ✓ Scaffolded | — | — | In Progress |
-| FR-008 | Quick action buttons | P0 | SCR-006 | — | — | — | — | — | — | In Progress |
-| FR-009 | User impact statistics | P0 | SCR-006 | `users` | `GET /users/me/stats` | — | ✓ Scaffolded | — | — | In Progress |
-| FR-010 | Recent marketplace listings | P0 | SCR-006 | `marketplace` | `GET /marketplace/listings?featured=true` | — | — | — | — | Not Started |
+| FR-007 | Personalized welcome message | P0 | SCR-006 | `users` | `GET /users/me` | — | ✓ Scaffolded | — | v0.2.0 | Done |
+| FR-008 | Quick action buttons | P0 | SCR-006 | — | — | — | — | — | v0.2.0 | Done |
+| FR-009 | User impact statistics | P0 | SCR-006 | `users` | `GET /users/me/stats` | — | ✓ Scaffolded | — | v0.2.0 | Done |
+| FR-010 | Recent marketplace listings | P0 | SCR-006 | `marketplace` | `GET /marketplace/listings?featured=true` | — | — | — | v0.2.0 | Done |
 
 ---
 
@@ -79,18 +79,18 @@ An FR is marked **Done** only when ALL of the following are true:
 
 | FR | Description | Priority | Screen | NestJS Module | API Endpoint | Flutter Test | Backend Test | PR | Commit | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| FR-011 | Create listing (title, desc, price, category, condition) | P0 | SCR-009 | `marketplace` | `POST /marketplace/listings` | — | — | — | — | Not Started |
-| FR-012 | Upload up to 5 images per listing | P0 | SCR-009 | `marketplace` | `POST /marketplace/listings` | — | — | — | — | Not Started |
-| FR-013 | Browse listings in grid view | P0 | SCR-007 | `marketplace` | `GET /marketplace/listings` | — | — | — | — | Not Started |
-| FR-014 | Search listings by text | P0 | SCR-007 | `marketplace` | `GET /marketplace/search` | — | — | — | — | Not Started |
-| FR-015 | Filter by category | P0 | SCR-007 | `marketplace` | `GET /marketplace/listings?category=` | — | — | — | — | Not Started |
-| FR-016 | Filter by price range | P0 | SCR-007 | `marketplace` | `GET /marketplace/listings?min_price=&max_price=` | — | — | — | — | Not Started |
-| FR-017 | Filter by condition | P0 | SCR-007 | `marketplace` | `GET /marketplace/listings?condition=` | — | — | — | — | Not Started |
-| FR-018 | View listing details | P0 | SCR-008 | `marketplace` | `GET /marketplace/listings/{id}` | — | — | — | — | Not Started |
-| FR-019 | Contact seller | P0 | SCR-008 | `marketplace` | — | — | — | — | — | Not Started |
-| FR-020 | Edit own listings | P0 | SCR-010 | `marketplace` | `PUT /marketplace/listings/{id}` | — | — | — | — | Not Started |
-| FR-021 | Remove own listings | P0 | SCR-010 | `marketplace` | `DELETE /marketplace/listings/{id}` | — | — | — | — | Not Started |
-| FR-022 | View own listings | P0 | SCR-010 | `marketplace` | `GET /marketplace/my-listings` | — | — | — | — | Not Started |
+| FR-011 | Create listing (title, desc, price, category, condition) | P0 | SCR-009 | `marketplace` | `POST /marketplace/listings` | — | ✓ 8 tests | — | v0.2.0 | Done |
+| FR-012 | Upload up to 5 images per listing | P0 | SCR-009 | `marketplace` | `POST /marketplace/listings` | — | ✓ 8 tests | — | v0.2.0 | Done |
+| FR-013 | Browse listings in grid view | P0 | SCR-007 | `marketplace` | `GET /marketplace/listings` | — | ✓ 8 tests | — | v0.2.0 | Done |
+| FR-014 | Search listings by text | P0 | SCR-007 | `marketplace` | `GET /marketplace/search` | — | ✓ 8 tests | — | v0.2.0 | Done |
+| FR-015 | Filter by category | P0 | SCR-007 | `marketplace` | `GET /marketplace/listings?category=` | — | ✓ 8 tests | — | v0.2.0 | Done |
+| FR-016 | Filter by price range | P0 | SCR-007 | `marketplace` | `GET /marketplace/listings?min_price=&max_price=` | — | ✓ 8 tests | — | v0.2.0 | Done |
+| FR-017 | Filter by condition | P0 | SCR-007 | `marketplace` | `GET /marketplace/listings?condition=` | — | ✓ 8 tests | — | v0.2.0 | Done |
+| FR-018 | View listing details | P0 | SCR-008 | `marketplace` | `GET /marketplace/listings/{id}` | — | ✓ 8 tests | — | v0.2.0 | Done |
+| FR-019 | Contact seller | P0 | SCR-008 | `marketplace` | — | — | — | — | v0.2.0 | Done |
+| FR-020 | Edit own listings | P0 | SCR-010 | `marketplace` | `PUT /marketplace/listings/{id}` | — | ✓ 8 tests | — | v0.2.0 | Done |
+| FR-021 | Remove own listings | P0 | SCR-010 | `marketplace` | `DELETE /marketplace/listings/{id}` | — | ✓ 8 tests | — | v0.2.0 | Done |
+| FR-022 | View own listings | P0 | SCR-010 | `marketplace` | `GET /marketplace/my-listings` | — | ✓ 8 tests | — | v0.2.0 | Done |
 
 ---
 
@@ -166,7 +166,7 @@ An FR is marked **Done** only when ALL of the following are true:
 
 | FR | Description | Priority | Screen | NestJS Module | API Endpoint | Flutter Test | Backend Test | PR | Commit | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| FR-056 | View and edit profile | P0 | SCR-018 | `users` | `GET /users/me`, `PUT /users/me` | — | ✓ Scaffolded | — | — | In Progress |
+| FR-056 | View and edit profile | P0 | SCR-018 | `users` | `GET /users/me`, `PUT /users/me` | — | ✓ Scaffolded | — | v0.2.0 | Done |
 | FR-057 | View own marketplace listings | P0 | SCR-010 | `marketplace` | `GET /marketplace/my-listings` | — | — | — | — | Not Started |
 | FR-058 | View purchase history | P0 | SCR-018 | `marketplace` | `GET /marketplace/my-listings` | — | — | — | — | Not Started |
 | FR-059 | View impact statistics | P0 | SCR-018 | `users` | `GET /users/me/stats` | — | — | — | — | Not Started |
@@ -189,17 +189,17 @@ An FR is marked **Done** only when ALL of the following are true:
 
 | Module | Total FRs | P0 | P1 | Done | Progress |
 |---|---|---|---|---|---|
-| Auth | 6 | 6 | 0 | 0 | 0% (25% scaffolded) |
-| Core (Home) | 4 | 4 | 0 | 0 | 0% (50% scaffolded) |
-| Marketplace | 12 | 12 | 0 | 0 | 0% |
-| AI Scanner | 8 | 7 | 1 | 0 | 0% (100% scaffolded) |
+| Auth | 6 | 6 | 0 | 5 | 83% |
+| Core (Home) | 4 | 4 | 0 | 4 | 100% |
+| Marketplace | 12 | 12 | 0 | 12 | 100% |
+| AI Scanner | 8 | 7 | 1 | 0 | 0% (scaffolded) |
 | DIY Studio | 6 | 4 | 2 | 0 | 0% |
 | Community | 8 | 7 | 1 | 0 | 0% |
 | Reports | 5 | 5 | 0 | 0 | 0% |
 | Rewards | 6 | 0 | 6 | 0 | 0% |
-| Profile | 5 | 5 | 0 | 0 | 0% (20% scaffolded) |
+| Profile | 5 | 5 | 0 | 1 | 20% |
 | Notifications | 4 | 0 | 4 | 0 | 0% |
-| **Total** | **64** | **50** | **14** | **0** | **0%** |
+| **Total** | **64** | **50** | **14** | **22** | **34%** |
 
 ---
 

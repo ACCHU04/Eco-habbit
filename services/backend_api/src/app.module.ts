@@ -9,6 +9,7 @@ import { DiyModule } from './modules/diy/diy.module';
 import { RewardsModule } from './modules/rewards/rewards.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { HomeModule } from './modules/home/home.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { SupabaseModule } from './config/supabase.module';
 import { FirebaseModule } from './config/firebase.module';
@@ -20,6 +21,7 @@ import { FirebaseModule } from './config/firebase.module';
     FirebaseModule,
     AuthModule,
     UsersModule,
+    HomeModule,
     MarketplaceModule,
     CommunityModule,
     AiModule,
