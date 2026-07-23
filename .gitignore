@@ -1,0 +1,57 @@
+# EcoHabit Monorepo .gitignore
+
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+*.pyc
+.dart_tool/
+.packages
+build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flutter
+*.iml
+android/.gradle/
+android/app/build/
+android/local.properties
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+
+# NestJS
+dist/
+coverage/
+
+# Python
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+
+# Docker
+docker-compose.override.yml
+
+# Build artifacts
+*.log
+*.tmp
+*.temp
+
+# Supabase
+supabase/.temp/
