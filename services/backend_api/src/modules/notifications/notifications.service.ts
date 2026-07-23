@@ -164,7 +164,7 @@ export class NotificationsService {
 
       if (!user?.fcm_token) return;
 
-      const admin = await import('firebase-admin');
+      const { getMessaging } = await import('firebase-admin/messaging');
 
       const message = {
         token: user.fcm_token,
@@ -175,7 +175,7 @@ export class NotificationsService {
         data: payload.data || {},
       };
 
-      await admin.messaging().send(message);
+      await getMessaging().send(message);
     } catch (_) {
       // Push notification is best-effort — don't fail the request
     }

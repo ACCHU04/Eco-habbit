@@ -178,6 +178,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen>
         currentLikesCount: previousLikesCount - 1,
       );
       if (mounted) {
+        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Could not update like')),
         );
@@ -213,12 +214,14 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen>
                   ),
                 );
                 if (mounted) {
+                  // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Report submitted')),
                   );
                 }
               } catch (e) {
                 if (mounted) {
+                  // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Failed to submit report')),
                   );
