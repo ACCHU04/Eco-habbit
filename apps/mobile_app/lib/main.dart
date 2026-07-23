@@ -7,10 +7,13 @@ import 'package:mobile_app/core/services/api_client.dart';
 import 'package:mobile_app/core/theme/app_theme.dart';
 import 'package:mobile_app/features/auth/data/auth_repository.dart';
 import 'package:mobile_app/features/auth/providers/auth_provider.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   final storage = StorageService();
   await storage.init();

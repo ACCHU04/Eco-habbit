@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "804944745436",
+    "project_id": "echo-habbit",
+    "storage_bucket": "echo-habbit.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:804944745436:android:8a33b105ee5acf15aff519",
+        "android_client_info": {
+          "package_name": "com.ecohabbit.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "804944745436-0or5evlhoe7starbuo6unp3562ickkrc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDK_NqAKNoEQQln0NHkRuOOXvf5ZTRcn6E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "804944745436-0or5evlhoe7starbuo6unp3562ickkrc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

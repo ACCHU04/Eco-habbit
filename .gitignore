@@ -55,3 +55,9 @@ docker-compose.override.yml
 
 # Supabase
 supabase/.temp/
+
+# Firebase — service account keys (contains private credentials, never commit)
+*-service-account.json
+firebase-service-account.json
+service-account-key.json
+# Note: google-services.json is intentionally NOT ignored (safe to commit)
