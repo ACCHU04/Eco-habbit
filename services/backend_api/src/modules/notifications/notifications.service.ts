@@ -9,7 +9,10 @@ export class NotificationsService {
     private readonly supabase: SupabaseClient,
   ) {}
 
-  async getNotifications(userId: string, params: { unread_only?: boolean; page?: number; limit?: number }) {
+  async getNotifications(
+    userId: string,
+    params: { unread_only?: boolean; page?: number; limit?: number },
+  ) {
     const { unread_only, page = 1, limit = 20 } = params;
     const offset = (page - 1) * limit;
 
@@ -99,12 +102,15 @@ export class NotificationsService {
     return { success: true, data };
   }
 
-  async updatePreferences(userId: string, prefs: {
-    like_comment?: boolean;
-    marketplace_inquiry?: boolean;
-    reward_achievement?: boolean;
-    community_update?: boolean;
-  }) {
+  async updatePreferences(
+    userId: string,
+    prefs: {
+      like_comment?: boolean;
+      marketplace_inquiry?: boolean;
+      reward_achievement?: boolean;
+      community_update?: boolean;
+    },
+  ) {
     const { data, error } = await this.supabase
       .from('notification_preferences')
       .upsert(
@@ -119,7 +125,13 @@ export class NotificationsService {
     return { success: true, data };
   }
 
-  async createNotification(userId: string, type: string, title: string, body: string, data?: Record<string, any>) {
+  async createNotification(
+    userId: string,
+    type: string,
+    title: string,
+    body: string,
+    data?: Record<string, any>,
+  ) {
     const { data: notification, error } = await this.supabase
       .from('notifications')
       .insert({
@@ -134,6 +146,38 @@ export class NotificationsService {
 
     if (error) throw new Error(error.message);
 
+    this.sendPushNotification(userId, { title, body, data });
+
     return { success: true, data: notification };
+  }
+
+  private async sendPushNotification(
+    userId: string,
+    payload: { title: string; body: string; data?: Record<string, any> },
+  ) {
+    try {
+      const { data: user } = await this.supabase
+        .from('users')
+        .select('fcm_token')
+        .eq('id', userId)
+        .single();
+
+      if (!user?.fcm_token) return;
+
+      const admin = await import('firebase-admin');
+
+      const message = {
+        token: user.fcm_token,
+        notification: {
+          title: payload.title,
+          body: payload.body,
+        },
+        data: payload.data || {},
+      };
+
+      await admin.messaging().send(message);
+    } catch (_) {
+      // Push notification is best-effort — don't fail the request
+    }
   }
 }

@@ -15,7 +15,10 @@ export const POINTS_RULES: Record<string, number> = {
   refer_friend: 25,
 };
 
-export const BADGE_CRITERIA: Record<string, { action: string; threshold: number }> = {
+export const BADGE_CRITERIA: Record<
+  string,
+  { action: string; threshold: number }
+> = {
   first_sale: { action: 'complete_sale', threshold: 1 },
   recycler: { action: 'recycle_item', threshold: 10 },
   creator: { action: 'complete_diy', threshold: 5 },
@@ -102,8 +105,9 @@ export class RewardsService {
   }
 
   async getLeaderboard(limit = 50) {
-    const { data, error } = await this.supabase
-      .rpc('get_leaderboard', { result_limit: limit });
+    const { data, error } = await this.supabase.rpc('get_leaderboard', {
+      result_limit: limit,
+    });
 
     if (error) {
       const { data: fallback, error: fallbackError } = await this.supabase

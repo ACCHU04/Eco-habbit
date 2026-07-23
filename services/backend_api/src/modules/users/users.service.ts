@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -18,7 +18,7 @@ export class UsersService {
       .single();
 
     if (error || !data) {
-      throw new NotFoundException('User not found');
+      throw new Error('User not found');
     }
 
     return {
@@ -53,7 +53,7 @@ export class UsersService {
       .single();
 
     if (error || !data) {
-      throw new NotFoundException('User not found');
+      throw new Error('User not found');
     }
 
     return {
@@ -88,5 +88,16 @@ export class UsersService {
         badges: badges?.map((b) => b.badge_type) || [],
       },
     };
+  }
+
+  async upsertFcmToken(userId: string, fcmToken: string | null) {
+    const { error } = await this.supabase
+      .from('users')
+      .update({ fcm_token: fcmToken })
+      .eq('id', userId);
+
+    if (error) throw new Error(error.message);
+
+    return { success: true };
   }
 }

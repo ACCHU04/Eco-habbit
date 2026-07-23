@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/core/theme/colors.dart';
 import 'package:mobile_app/core/theme/typography.dart';
 
+export 'colors.dart';
+
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      colorScheme: ColorScheme.light(
+      colorScheme: const ColorScheme.light(
         primary: EcoColors.primary,
         onPrimary: Colors.white,
         primaryContainer: EcoColors.primaryContainer,
@@ -48,7 +50,7 @@ class AppTheme {
           color: EcoColors.onBackgroundLight,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: EcoColors.surfaceLight,
         elevation: 1,
         shape: RoundedRectangleBorder(
@@ -112,7 +114,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme: ColorScheme.dark(
+      colorScheme: const ColorScheme.dark(
         primary: EcoColors.primaryLight,
         onPrimary: EcoColors.backgroundDark,
         primaryContainer: EcoColors.onPrimaryContainer,
@@ -153,7 +155,7 @@ class AppTheme {
           color: EcoColors.onBackgroundDark,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: EcoColors.surfaceDark,
         elevation: 1,
         shape: RoundedRectangleBorder(

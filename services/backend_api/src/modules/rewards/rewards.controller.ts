@@ -1,5 +1,19 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { RewardsService } from './rewards.service';
 
@@ -12,8 +26,15 @@ export class RewardsController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Award points for an action' })
-  async awardPoints(@Req() req: any, @Body() body: { action: string; custom_points?: number }) {
-    return this.rewardsService.awardPoints(req.user.id, body.action, body.custom_points);
+  async awardPoints(
+    @Req() req: any,
+    @Body() body: { action: string; custom_points?: number },
+  ) {
+    return this.rewardsService.awardPoints(
+      req.user.id,
+      body.action,
+      body.custom_points,
+    );
   }
 
   @Get('points')
@@ -54,6 +75,8 @@ export class RewardsController {
   @ApiOperation({ summary: 'Get campus-wide leaderboard' })
   @ApiQuery({ name: 'limit', required: false })
   async getLeaderboard(@Query('limit') limit?: string) {
-    return this.rewardsService.getLeaderboard(limit ? parseInt(limit, 10) : undefined);
+    return this.rewardsService.getLeaderboard(
+      limit ? parseInt(limit, 10) : undefined,
+    );
   }
 }

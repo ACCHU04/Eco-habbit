@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/theme/app_theme.dart';
 import 'package:mobile_app/features/diy/models/diy_project_model.dart';
+import 'package:mobile_app/features/community/data/community_repository.dart';
+import 'package:mobile_app/features/community/models/post.dart';
+import 'package:mobile_app/features/community/providers/community_provider.dart';
 
-class CreatePostScreen extends StatefulWidget {
+class CreatePostScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic>? extra;
   const CreatePostScreen({super.key, this.extra});
 
   @override
-  State<CreatePostScreen> createState() => _CreatePostScreenState();
+  ConsumerState<CreatePostScreen> createState() => _CreatePostScreenState();
 }
 
-class _CreatePostScreenState extends State<CreatePostScreen> {
+class _CreatePostScreenState extends ConsumerState<CreatePostScreen> {
   late String _selectedType;
   late final TextEditingController _contentController;
   bool _isSubmitting = false;
@@ -54,8 +58,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Post',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                : const Text('Post', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -64,10 +67,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Post Type',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
+            const Text('Post Type', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -100,9 +100,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               maxLength: 2000,
               decoration: InputDecoration(
                 hintText: _getHintText(),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 filled: true,
                 fillColor: Theme.of(context).colorScheme.surface,
               ),
@@ -110,23 +108,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             const SizedBox(height: 16),
             Row(
               children: [
-                _ActionButton(
-                  icon: Icons.camera_alt,
-                  label: 'Camera',
-                  onTap: () {},
-                ),
+                _ActionButton(icon: Icons.camera_alt, label: 'Camera', onTap: () {}),
                 const SizedBox(width: 16),
-                _ActionButton(
-                  icon: Icons.photo_library,
-                  label: 'Gallery',
-                  onTap: () {},
-                ),
+                _ActionButton(icon: Icons.photo_library, label: 'Gallery', onTap: () {}),
                 const SizedBox(width: 16),
-                _ActionButton(
-                  icon: Icons.link,
-                  label: 'Link',
-                  onTap: () {},
-                ),
+                _ActionButton(icon: Icons.link, label: 'Link', onTap: () {}),
               ],
             ),
           ],
@@ -148,7 +134,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     }
   }
 
-  void _submitPost() {
+  Future<void> _submitPost() async {
     if (_contentController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please write something')),
@@ -158,15 +144,28 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
     setState(() => _isSubmitting = true);
 
-    Future.delayed(const Duration(seconds: 1), () {
+    try {
+      await ref.read(communityRepositoryProvider).createPost(
+        CreatePostRequest(
+          postType: _selectedType,
+          content: _contentController.text.trim(),
+        ),
+      );
+      ref.invalidate(communityFeedProvider);
       if (mounted) {
-        setState(() => _isSubmitting = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Post created!')),
         );
         context.pop();
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create post: $e')),
+        );
+      }
+    }
   }
 }
 
@@ -176,12 +175,7 @@ class _TypeChip extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  const _TypeChip({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
+  const _TypeChip({required this.icon, required this.label, required this.selected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -196,9 +190,7 @@ class _TypeChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon,
-                size: 14,
-                color: selected ? Colors.white : Colors.grey[600]),
+            Icon(icon, size: 14, color: selected ? Colors.white : Colors.grey[600]),
             const SizedBox(width: 4),
             Text(
               label,
@@ -220,11 +212,7 @@ class _ActionButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+  const _ActionButton({required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -236,14 +224,13 @@ class _ActionButton extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: AppColors.primary),
           ),
           const SizedBox(height: 4),
-          Text(label,
-              style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+          Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
         ],
       ),
     );

@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobile_app/core/services/api_client.dart';
 import 'package:mobile_app/features/auth/models/user_model.dart';
 
@@ -23,8 +23,14 @@ class AuthRepository {
     });
 
     final data = response.data['data'];
+    final customToken = data['custom_token'] as String;
+
+    final credential = await FirebaseAuth.instance.signInWithCustomToken(customToken);
+    final idToken = await credential.user!.getIdToken();
+
     return AuthResult(
-      token: data['custom_token'] as String,
+      customToken: customToken,
+      idToken: idToken!,
       user: UserModel(
         id: data['uid'] as String,
         email: data['email'] as String,
@@ -45,8 +51,14 @@ class AuthRepository {
     });
 
     final data = response.data['data'];
+    final customToken = data['custom_token'] as String;
+
+    final credential = await FirebaseAuth.instance.signInWithCustomToken(customToken);
+    final idToken = await credential.user!.getIdToken();
+
     return AuthResult(
-      token: data['custom_token'] as String,
+      customToken: customToken,
+      idToken: idToken!,
       user: UserModel(
         id: data['uid'] as String,
         email: data['email'] as String,
@@ -85,8 +97,9 @@ class AuthRepository {
 }
 
 class AuthResult {
-  final String token;
+  final String customToken;
+  final String idToken;
   final UserModel user;
 
-  const AuthResult({required this.token, required this.user});
+  const AuthResult({required this.customToken, required this.idToken, required this.user});
 }

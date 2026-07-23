@@ -1,26 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile_app/features/scanner/models/scan_result_data.dart';
 
 class ScanResultScreen extends StatelessWidget {
-  final String imagePath;
-  final String category;
-  final double confidence;
-  final String disposalTips;
-  final bool isUncertain;
-  final List<Map<String, dynamic>> diySuggestions;
+  final ScanResultData data;
+  const ScanResultScreen({super.key, required this.data});
 
-  const ScanResultScreen({
-    super.key,
-    required this.imagePath,
-    required this.category,
-    required this.confidence,
-    required this.disposalTips,
-    required this.isUncertain,
-    required this.diySuggestions,
-  });
-
-  Color _confidenceColor(double confidence, ThemeData theme) {
+  Color _confidenceColor(double confidence) {
     if (confidence >= 0.80) return const Color(0xFF059669);
     if (confidence >= 0.60) return const Color(0xFFF59E0B);
     return const Color(0xFFDC2626);
@@ -57,7 +44,7 @@ class ScanResultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final confColor = _confidenceColor(confidence, theme);
+    final confColor = _confidenceColor(data.confidence);
 
     return Scaffold(
       appBar: AppBar(
@@ -74,19 +61,18 @@ class ScanResultScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image preview
             SizedBox(
               height: 220,
               width: double.infinity,
               child: Image.file(
-                File(imagePath),
+                File(data.imagePath),
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Container(
                   color: theme.colorScheme.surfaceContainerHighest,
                   child: Icon(
                     Icons.image_not_supported_outlined,
                     size: 48,
-                    color: theme.colorScheme.onSurface.withOpacity(0.3),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                   ),
                 ),
               ),
@@ -97,7 +83,6 @@ class ScanResultScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Classification card
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -107,7 +92,7 @@ class ScanResultScreen extends StatelessWidget {
                           Row(
                             children: [
                               Icon(
-                                _categoryIcon(category),
+                                _categoryIcon(data.category),
                                 size: 32,
                                 color: theme.colorScheme.primary,
                               ),
@@ -117,12 +102,12 @@ class ScanResultScreen extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      _categoryLabel(category),
+                                      _categoryLabel(data.category),
                                       style: theme.textTheme.headlineSmall?.copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    if (isUncertain)
+                                    if (data.isUncertain)
                                       Container(
                                         margin: const EdgeInsets.only(top: 4),
                                         padding: const EdgeInsets.symmetric(
@@ -148,13 +133,12 @@ class ScanResultScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 16),
 
-                          // Confidence bar
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text('Confidence', style: theme.textTheme.labelMedium),
                               Text(
-                                '${(confidence * 100).toStringAsFixed(0)}%',
+                                '${(data.confidence * 100).toStringAsFixed(0)}%',
                                 style: theme.textTheme.labelMedium?.copyWith(
                                   color: confColor,
                                   fontWeight: FontWeight.bold,
@@ -166,7 +150,7 @@ class ScanResultScreen extends StatelessWidget {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(4),
                             child: LinearProgressIndicator(
-                              value: confidence,
+                              value: data.confidence,
                               backgroundColor: theme.colorScheme.surfaceContainerHighest,
                               valueColor: AlwaysStoppedAnimation(confColor),
                               minHeight: 8,
@@ -174,15 +158,14 @@ class ScanResultScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 16),
 
-                          // Disposal tips
                           Text('Disposal Tips', style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w600,
                           )),
                           const SizedBox(height: 6),
                           Text(
-                            disposalTips,
+                            data.disposalTips,
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurface.withOpacity(0.7),
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                             ),
                           ),
                         ],
@@ -190,8 +173,7 @@ class ScanResultScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // Manual fallback for uncertain results
-                  if (isUncertain) ...[
+                  if (data.isUncertain) ...[
                     const SizedBox(height: 16),
                     Card(
                       child: Padding(
@@ -216,7 +198,9 @@ class ScanResultScreen extends StatelessWidget {
                                 label: Text(_categoryLabel(cat)),
                                 avatar: Icon(_categoryIcon(cat), size: 16),
                                 onPressed: () {
-                                  // TODO: Re-classify with manual selection
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Manual re-classification coming soon')),
+                                  );
                                 },
                               )).toList(),
                             ),
@@ -226,8 +210,7 @@ class ScanResultScreen extends StatelessWidget {
                     ),
                   ],
 
-                  // DIY Suggestions
-                  if (diySuggestions.isNotEmpty) ...[
+                  if (data.diySuggestions.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     Text(
                       'DIY Suggestions',
@@ -236,7 +219,7 @@ class ScanResultScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    ...diySuggestions.map((s) => Card(
+                    ...data.diySuggestions.map((s) => Card(
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundColor: theme.colorScheme.secondaryContainer,
@@ -245,10 +228,10 @@ class ScanResultScreen extends StatelessWidget {
                             color: theme.colorScheme.onSecondaryContainer,
                           ),
                         ),
-                        title: Text(s['title'] ?? ''),
-                        subtitle: Text(s['difficulty'] ?? ''),
+                        title: Text(s.title),
+                        subtitle: Text(s.difficulty[0].toUpperCase() + s.difficulty.substring(1)),
                         trailing: const Icon(Icons.chevron_right),
-                        onTap: () => context.push('/diy/${s['project_id']}'),
+                        onTap: () => context.push('/diy/${s.projectId}'),
                       ),
                     )),
                   ],

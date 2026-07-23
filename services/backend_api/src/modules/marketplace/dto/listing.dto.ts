@@ -1,4 +1,11 @@
-import { IsString, IsNumber, IsEnum, IsOptional, Min, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsOptional,
+  Min,
+  MaxLength,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum ProductCategory {
@@ -32,7 +39,10 @@ export class CreateListingDto {
   @Min(0)
   price: number;
 
-  @ApiProperty({ enum: ProductCategory, example: ProductCategory.textbooks_stationery })
+  @ApiProperty({
+    enum: ProductCategory,
+    example: ProductCategory.textbooks_stationery,
+  })
   @IsEnum(ProductCategory)
   category: ProductCategory;
 
@@ -40,7 +50,10 @@ export class CreateListingDto {
   @IsEnum(ProductCondition)
   condition: ProductCondition;
 
-  @ApiPropertyOptional({ type: [String], example: ['https://example.com/img1.jpg'] })
+  @ApiPropertyOptional({
+    type: [String],
+    example: ['https://example.com/img1.jpg'],
+  })
   @IsOptional()
   @IsString({ each: true })
   image_urls?: string[];

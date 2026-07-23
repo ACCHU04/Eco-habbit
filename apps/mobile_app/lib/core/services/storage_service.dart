@@ -1,13 +1,14 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StorageService {
-  static const _keyToken = 'auth_token';
-  static const _keyUserId = 'user_id';
-  static const _keyUserEmail = 'user_email';
-  static const _keyUserName = 'user_name';
-  static const _keyUserRole = 'user_role';
-  static const _keyUserCollege = 'user_college';
-  static const _keyThemeMode = 'theme_mode';
+  static const _kFirebaseCustomToken = 'firebase_custom_token';
+  static const _kFirebaseIdToken = 'firebase_id_token';
+  static const _kUserId = 'user_id';
+  static const _kUserEmail = 'user_email';
+  static const _kUserName = 'user_name';
+  static const _kUserRole = 'user_role';
+  static const _kUserCollege = 'user_college';
+  static const _kThemeMode = 'theme_mode';
 
   late final SharedPreferences _prefs;
 
@@ -15,8 +16,15 @@ class StorageService {
     _prefs = await SharedPreferences.getInstance();
   }
 
-  Future<void> saveToken(String token) => _prefs.setString(_keyToken, token);
-  String? getToken() => _prefs.getString(_keyToken);
+  Future<void> saveFirebaseCustomToken(String token) =>
+      _prefs.setString(_kFirebaseCustomToken, token);
+  String? getFirebaseCustomToken() => _prefs.getString(_kFirebaseCustomToken);
+
+  Future<void> saveFirebaseIdToken(String token) =>
+      _prefs.setString(_kFirebaseIdToken, token);
+  String? getFirebaseIdToken() => _prefs.getString(_kFirebaseIdToken);
+
+  String? getToken() => getFirebaseIdToken();
 
   Future<void> saveUser({
     required String id,
@@ -25,30 +33,31 @@ class StorageService {
     String? role,
     String? college,
   }) async {
-    await _prefs.setString(_keyUserId, id);
-    await _prefs.setString(_keyUserEmail, email);
-    await _prefs.setString(_keyUserName, fullName);
-    if (role != null) await _prefs.setString(_keyUserRole, role);
-    if (college != null) await _prefs.setString(_keyUserCollege, college);
+    await _prefs.setString(_kUserId, id);
+    await _prefs.setString(_kUserEmail, email);
+    await _prefs.setString(_kUserName, fullName);
+    if (role != null) await _prefs.setString(_kUserRole, role);
+    if (college != null) await _prefs.setString(_kUserCollege, college);
   }
 
-  String? getUserId() => _prefs.getString(_keyUserId);
-  String? getUserEmail() => _prefs.getString(_keyUserEmail);
-  String? getUserName() => _prefs.getString(_keyUserName);
-  String? getUserRole() => _prefs.getString(_keyUserRole);
-  String? getUserCollege() => _prefs.getString(_keyUserCollege);
+  String? getUserId() => _prefs.getString(_kUserId);
+  String? getUserEmail() => _prefs.getString(_kUserEmail);
+  String? getUserName() => _prefs.getString(_kUserName);
+  String? getUserRole() => _prefs.getString(_kUserRole);
+  String? getUserCollege() => _prefs.getString(_kUserCollege);
 
-  bool get isAuthenticated => getToken() != null;
+  bool get isAuthenticated => getFirebaseIdToken() != null;
 
   Future<void> clearAuth() async {
-    await _prefs.remove(_keyToken);
-    await _prefs.remove(_keyUserId);
-    await _prefs.remove(_keyUserEmail);
-    await _prefs.remove(_keyUserName);
-    await _prefs.remove(_keyUserRole);
-    await _prefs.remove(_keyUserCollege);
+    await _prefs.remove(_kFirebaseCustomToken);
+    await _prefs.remove(_kFirebaseIdToken);
+    await _prefs.remove(_kUserId);
+    await _prefs.remove(_kUserEmail);
+    await _prefs.remove(_kUserName);
+    await _prefs.remove(_kUserRole);
+    await _prefs.remove(_kUserCollege);
   }
 
-  Future<void> setThemeMode(String mode) => _prefs.setString(_keyThemeMode, mode);
-  String getThemeMode() => _prefs.getString(_keyThemeMode) ?? 'system';
+  Future<void> setThemeMode(String mode) => _prefs.setString(_kThemeMode, mode);
+  String getThemeMode() => _prefs.getString(_kThemeMode) ?? 'system';
 }

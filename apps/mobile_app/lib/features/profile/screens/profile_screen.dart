@@ -1,12 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/theme/app_theme.dart';
+import 'package:mobile_app/features/auth/providers/auth_provider.dart';
+import 'package:mobile_app/features/profile/providers/profile_provider.dart';
 
-class ProfileScreen extends StatelessWidget {
+String _computeInitials(String fullName) {
+  final trimmed = fullName.trim();
+  if (trimmed.isEmpty) return '?';
+  final parts = trimmed.split(RegExp(r'\s+'));
+  if (parts.length == 1) return parts[0][0].toUpperCase();
+  return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+}
+
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+    final user = authState.valueOrNull?.user;
+    final statsAsync = ref.watch(profileStatsProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
@@ -20,19 +35,28 @@ class ProfileScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Center(
+          Center(
             child: CircleAvatar(
               radius: 40,
               backgroundColor: AppColors.primary,
-              child: Text('AS', style: TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold)),
+              child: Text(
+                _computeInitials(user?.fullName ?? ''),
+                style: const TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold),
+              ),
             ),
           ),
           const SizedBox(height: 12),
-          const Center(
-            child: Text('Aisha Sharma', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Center(
+            child: Text(
+              user?.fullName ?? '',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
           ),
-          const Center(
-            child: Text('Computer Science • 3rd Year', style: TextStyle(color: Colors.grey)),
+          Center(
+            child: Text(
+              user?.college ?? '',
+              style: const TextStyle(color: Colors.grey),
+            ),
           ),
           const SizedBox(height: 24),
           Card(
@@ -43,13 +67,27 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   const Text('Impact Stats', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
                   const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _StatItem(icon: Icons.shopping_bag, label: 'Items Sold', value: '12'),
-                      _StatItem(icon: Icons.recycling, label: 'Recycled', value: '28'),
-                      _StatItem(icon: Icons.co2, label: 'CO₂ Saved', value: '45kg'),
-                    ],
+                  statsAsync.when(
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error: (e, _) => Center(
+                      child: Column(
+                        children: [
+                          const Text('Could not load stats', style: TextStyle(color: Colors.grey)),
+                          TextButton(
+                            onPressed: () => ref.read(profileStatsProvider.notifier).reload(),
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                    data: (stats) => Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _StatItem(icon: Icons.storefront, label: 'Listings', value: '${stats.listingsCount}'),
+                        _StatItem(icon: Icons.star, label: 'Points', value: '${stats.totalPoints}'),
+                        _StatItem(icon: Icons.military_tech, label: 'Badges', value: '${stats.badgesCount}'),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -62,28 +100,18 @@ class ProfileScreen extends StatelessWidget {
                 _ProfileMenuItem(
                   icon: Icons.storefront,
                   title: 'My Listings',
-                  subtitle: '12 active listings',
                   onTap: () => context.push('/my-listings'),
-                ),
-                const Divider(height: 1),
-                _ProfileMenuItem(
-                  icon: Icons.shopping_cart,
-                  title: 'My Purchases',
-                  subtitle: '3 items bought',
-                  onTap: () {},
                 ),
                 const Divider(height: 1),
                 _ProfileMenuItem(
                   icon: Icons.star,
                   title: 'Eco Rewards',
-                  subtitle: '1,250 points • 2 badges',
                   onTap: () => context.push('/rewards'),
                 ),
                 const Divider(height: 1),
                 _ProfileMenuItem(
                   icon: Icons.bookmark,
                   title: 'Saved DIY Projects',
-                  subtitle: '5 projects saved',
                   onTap: () {},
                 ),
               ],
@@ -96,7 +124,6 @@ class ProfileScreen extends StatelessWidget {
                 _ProfileMenuItem(
                   icon: Icons.notifications_outlined,
                   title: 'Notifications',
-                  subtitle: 'Manage notification preferences',
                   onTap: () => context.push('/notifications'),
                 ),
                 const Divider(height: 1),
@@ -110,7 +137,7 @@ class ProfileScreen extends StatelessWidget {
                   icon: Icons.logout,
                   title: 'Logout',
                   color: Colors.red,
-                  onTap: () {},
+                  onTap: () => ref.read(authProvider.notifier).logout(),
                 ),
               ],
             ),
@@ -143,13 +170,11 @@ class _StatItem extends StatelessWidget {
 class _ProfileMenuItem extends StatelessWidget {
   final IconData icon;
   final String title;
-  final String? subtitle;
   final Color? color;
   final VoidCallback onTap;
   const _ProfileMenuItem({
     required this.icon,
     required this.title,
-    this.subtitle,
     this.color,
     required this.onTap,
   });
@@ -159,7 +184,6 @@ class _ProfileMenuItem extends StatelessWidget {
     return ListTile(
       leading: Icon(icon, color: color ?? AppColors.primary),
       title: Text(title, style: TextStyle(color: color)),
-      subtitle: subtitle != null ? Text(subtitle!, style: const TextStyle(fontSize: 12)) : null,
       trailing: Icon(Icons.chevron_right, color: Colors.grey[400]),
       onTap: onTap,
     );

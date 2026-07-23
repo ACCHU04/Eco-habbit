@@ -1,4 +1,9 @@
-import { Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { CreateListingDto, UpdateListingDto } from './dto/listing.dto';
@@ -47,12 +52,22 @@ export class MarketplaceService {
     page?: number;
     limit?: number;
   }) {
-    const { search, category, condition, min_price, max_price, page = 1, limit = 20 } = params;
+    const {
+      search,
+      category,
+      condition,
+      min_price,
+      max_price,
+      page = 1,
+      limit = 20,
+    } = params;
     const offset = (page - 1) * limit;
 
     let query = this.supabase
       .from('marketplace_listings')
-      .select('*, marketplace_listing_images(image_url, sort_order)', { count: 'exact' })
+      .select('*, marketplace_listing_images(image_url, sort_order)', {
+        count: 'exact',
+      })
       .eq('status', 'active')
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
@@ -92,7 +107,9 @@ export class MarketplaceService {
   async getListingById(id: string) {
     const { data, error } = await this.supabase
       .from('marketplace_listings')
-      .select('*, marketplace_listing_images(image_url, sort_order), users(id, full_name, profile_photo, college)')
+      .select(
+        '*, marketplace_listing_images(image_url, sort_order), users(id, full_name, profile_photo, college)',
+      )
       .eq('id', id)
       .single();
 
@@ -109,7 +126,8 @@ export class MarketplaceService {
       .single();
 
     if (!existing) throw new NotFoundException('Listing not found');
-    if (existing.seller_id !== sellerId) throw new ForbiddenException('Not your listing');
+    if (existing.seller_id !== sellerId)
+      throw new ForbiddenException('Not your listing');
 
     const { data, error } = await this.supabase
       .from('marketplace_listings')
@@ -131,7 +149,8 @@ export class MarketplaceService {
       .single();
 
     if (!existing) throw new NotFoundException('Listing not found');
-    if (existing.seller_id !== sellerId) throw new ForbiddenException('Not your listing');
+    if (existing.seller_id !== sellerId)
+      throw new ForbiddenException('Not your listing');
 
     const { error } = await this.supabase
       .from('marketplace_listings')

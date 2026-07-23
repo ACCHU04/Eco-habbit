@@ -1,7 +1,23 @@
-import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { NotificationsService } from './notifications.service';
+import { CreateNotificationDto } from './dto/create-notification.dto';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -9,6 +25,21 @@ import { NotificationsService } from './notifications.service';
 @ApiBearerAuth()
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
+
+  @Post()
+  @ApiOperation({ summary: 'Create a notification' })
+  async createNotification(
+    @Req() req: any,
+    @Body() dto: CreateNotificationDto,
+  ) {
+    return this.notificationsService.createNotification(
+      req.user.id,
+      dto.type,
+      dto.title,
+      dto.body,
+      dto.data,
+    );
+  }
 
   @Get()
   @ApiOperation({ summary: 'Get user notifications' })
@@ -56,7 +87,8 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Update notification preferences' })
   async updatePreferences(
     @Req() req: any,
-    @Body() prefs: {
+    @Body()
+    prefs: {
       like_comment?: boolean;
       marketplace_inquiry?: boolean;
       reward_achievement?: boolean;

@@ -2,7 +2,9 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsOptional } from 'class-validator';
 
 export class ClassifyDto {
-  @ApiPropertyOptional({ description: 'Image URL (alternative to file upload)' })
+  @ApiPropertyOptional({
+    description: 'Image URL (alternative to file upload)',
+  })
   @IsOptional()
   @IsString()
   image_url?: string;

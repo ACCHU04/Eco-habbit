@@ -1,7 +1,11 @@
+import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_app/core/services/api_client.dart';
 import 'package:mobile_app/core/services/storage_service.dart';
 import 'package:mobile_app/features/auth/data/auth_repository.dart';
 import 'package:mobile_app/features/auth/models/user_model.dart';
+import 'package:mobile_app/features/notifications/services/fcm_service.dart';
 
 enum AuthState { initial, loading, authenticated, unauthenticated, error }
 
@@ -22,9 +26,10 @@ class AuthData {
 class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
   final AuthRepository _repository;
   final StorageService _storage;
+  final Ref _ref;
   AuthState _authState = AuthState.initial;
 
-  AuthNotifier(this._repository, this._storage)
+  AuthNotifier(this._repository, this._storage, this._ref)
       : super(const AsyncValue.loading()) {
     _init();
   }
@@ -32,28 +37,78 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
   AuthState get authState => _authState;
 
   Future<void> _init() async {
-    final token = _storage.getToken();
-    if (token == null) {
-      _authState = AuthState.unauthenticated;
-      state = const AsyncValue.data(AuthData());
-      return;
-    }
+    _authState = AuthState.loading;
+    state = const AsyncValue.loading();
 
     try {
+      var firebaseUser = FirebaseAuth.instance.currentUser;
+
+      if (firebaseUser == null) {
+        final customToken = _storage.getFirebaseCustomToken();
+        if (customToken == null) {
+          _authState = AuthState.unauthenticated;
+          state = const AsyncValue.data(AuthData());
+          return;
+        }
+
+        try {
+          final credential = await FirebaseAuth.instance.signInWithCustomToken(customToken);
+          firebaseUser = credential.user;
+        } catch (_) {
+          await _storage.clearAuth();
+          _authState = AuthState.unauthenticated;
+          state = const AsyncValue.data(AuthData());
+          return;
+        }
+      }
+
+      if (firebaseUser == null) {
+        _authState = AuthState.unauthenticated;
+        state = const AsyncValue.data(AuthData());
+        return;
+      }
+
+      final idToken = await firebaseUser.getIdToken();
+      await _storage.saveFirebaseIdToken(idToken!);
+
       final user = await _repository.getMe();
-      _storage.saveUser(
+      await _storage.saveUser(
         id: user.id,
         email: user.email,
         fullName: user.fullName,
         role: user.role,
         college: user.college,
       );
+
       _authState = AuthState.authenticated;
       state = AsyncValue.data(AuthData(user: user));
-    } catch (_) {
+
+      _initFcm();
+    } catch (e) {
       await _storage.clearAuth();
       _authState = AuthState.unauthenticated;
       state = const AsyncValue.data(AuthData());
+    }
+  }
+
+  void _initFcm() {
+    Future.microtask(() {
+      try {
+        final api = _ref.read(apiClientProvider);
+        FcmService.initialize(api);
+      } catch (_) {}
+    });
+  }
+
+  Future<String?> refreshIdToken() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return null;
+    try {
+      final idToken = await user.getIdToken(true);
+      await _storage.saveFirebaseIdToken(idToken!);
+      return idToken;
+    } catch (_) {
+      return null;
     }
   }
 
@@ -63,7 +118,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
 
     try {
       final result = await _repository.login(email: email, password: password);
-      await _storage.saveToken(result.token);
+      await _storage.saveFirebaseCustomToken(result.customToken);
+      await _storage.saveFirebaseIdToken(result.idToken);
       await _storage.saveUser(
         id: result.user.id,
         email: result.user.email,
@@ -73,11 +129,10 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
       );
       _authState = AuthState.authenticated;
       state = AsyncValue.data(AuthData(user: result.user));
+      _initFcm();
     } catch (e) {
       _authState = AuthState.error;
-      state = AsyncValue.data(AuthData(
-        errorMessage: _parseError(e),
-      ));
+      state = AsyncValue.data(AuthData(errorMessage: _parseError(e)));
     }
   }
 
@@ -99,7 +154,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
         college: college,
         role: role,
       );
-      await _storage.saveToken(result.token);
+      await _storage.saveFirebaseCustomToken(result.customToken);
+      await _storage.saveFirebaseIdToken(result.idToken);
       await _storage.saveUser(
         id: result.user.id,
         email: result.user.email,
@@ -109,11 +165,10 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
       );
       _authState = AuthState.authenticated;
       state = AsyncValue.data(AuthData(user: result.user));
+      _initFcm();
     } catch (e) {
       _authState = AuthState.error;
-      state = AsyncValue.data(AuthData(
-        errorMessage: _parseError(e),
-      ));
+      state = AsyncValue.data(AuthData(errorMessage: _parseError(e)));
     }
   }
 
@@ -131,9 +186,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
         college: updated.college,
       );
       state = AsyncValue.data(AuthData(user: updated));
-    } catch (_) {
-      // Role update is non-critical for RC
-    }
+    } catch (_) {}
   }
 
   Future<void> completeSetup({String? bio}) async {
@@ -158,8 +211,18 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
   }
 
   Future<void> logout() async {
+    try {
+      final api = _ref.read(apiClientProvider);
+      await api.post('/users/fcm-token', data: {'fcm_token': null});
+    } catch (_) {}
+
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (_) {}
+
     await _repository.logout();
     await _storage.clearAuth();
+
     _authState = AuthState.unauthenticated;
     state = const AsyncValue.data(AuthData());
   }
@@ -180,7 +243,6 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
   }
 }
 
-// These providers are overridden in main.dart with initialized instances
 final storageServiceProvider = Provider<StorageService>((ref) {
   throw UnimplementedError('Must be overridden in ProviderScope');
 });

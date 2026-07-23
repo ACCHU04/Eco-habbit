@@ -1,7 +1,17 @@
-import { Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 import { SupabaseClient } from '@supabase/supabase-js';
-import { CreatePostDto, CreateCommentDto, CreateReportDto, ResolveReportDto } from './dto/community.dto';
+import {
+  CreatePostDto,
+  CreateCommentDto,
+  CreateReportDto,
+  ResolveReportDto,
+} from './dto/community.dto';
 
 @Injectable()
 export class CommunityService {
@@ -43,12 +53,15 @@ export class CommunityService {
 
     let query = this.supabase
       .from('posts')
-      .select(`
+      .select(
+        `
         *,
         users:author_id(id, full_name, profile_photo),
         post_images(image_url),
-        post_likes!inner(user_id)
-      `, { count: 'exact' })
+        post_likes(user_id)
+      `,
+        { count: 'exact' },
+      )
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -75,12 +88,14 @@ export class CommunityService {
   async getPostById(id: string) {
     const { data, error } = await this.supabase
       .from('posts')
-      .select(`
+      .select(
+        `
         *,
         users:author_id(id, full_name, profile_photo),
         post_images(image_url),
         post_comments(*, users:author_id(id, full_name, profile_photo))
-      `)
+      `,
+      )
       .eq('id', id)
       .single();
 
@@ -98,10 +113,7 @@ export class CommunityService {
       .single();
 
     if (existing) {
-      await this.supabase
-        .from('post_likes')
-        .delete()
-        .eq('id', existing.id);
+      await this.supabase.from('post_likes').delete().eq('id', existing.id);
 
       await this.supabase.rpc('decrement_column', {
         table_name: 'posts',
@@ -157,12 +169,10 @@ export class CommunityService {
       .single();
 
     if (!existing) throw new NotFoundException('Post not found');
-    if (existing.author_id !== authorId) throw new ForbiddenException('Not your post');
+    if (existing.author_id !== authorId)
+      throw new ForbiddenException('Not your post');
 
-    const { error } = await this.supabase
-      .from('posts')
-      .delete()
-      .eq('id', id);
+    const { error } = await this.supabase.from('posts').delete().eq('id', id);
 
     if (error) throw new Error(error.message);
 

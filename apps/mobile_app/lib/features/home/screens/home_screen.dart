@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile_app/features/auth/providers/auth_provider.dart';
+import 'package:mobile_app/features/home/providers/home_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -8,6 +10,9 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final user = ref.watch(authProvider).valueOrNull?.user;
+    final dashboardAsync = ref.watch(dashboardProvider);
+    final firstName = (user?.fullName ?? '').trim().split(' ').first;
 
     return Scaffold(
       appBar: AppBar(
@@ -23,7 +28,6 @@ class HomeScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome banner
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -31,7 +35,7 @@ class HomeScreen extends ConsumerWidget {
                 gradient: LinearGradient(
                   colors: [
                     theme.colorScheme.primary,
-                    theme.colorScheme.primary.withOpacity(0.8),
+                    theme.colorScheme.primary.withValues(alpha: 0.8),
                   ],
                 ),
               ),
@@ -39,7 +43,7 @@ class HomeScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Welcome back, Student!',
+                    'Welcome back, ${firstName.isNotEmpty ? firstName : 'Student'}!',
                     style: theme.textTheme.headlineSmall?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -47,29 +51,35 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Your campus college',
+                    user?.college ?? '',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      _StatBadge(label: '0 pts', icon: Icons.star_outline),
-                      const SizedBox(width: 12),
-                      _StatBadge(label: '0 items', icon: Icons.inventory_2_outlined),
-                      const SizedBox(width: 12),
-                      _StatBadge(label: '0 badges', icon: Icons.military_tech_outlined),
-                    ],
+                  dashboardAsync.when(
+                    loading: () => const SizedBox(
+                      height: 32,
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+                    error: (_, __) => const SizedBox.shrink(),
+                    data: (dashboard) => Row(
+                      children: [
+                        _StatBadge(
+                          label: '${dashboard.points} pts',
+                          icon: Icons.star_outline,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
 
-            // Quick actions
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Text('Quick Actions', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+              child: Text('Quick Actions',
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -102,13 +112,13 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
 
-            // Recent listings
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Recent Listings', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                  Text('Recent Listings',
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                   TextButton(
                     onPressed: () => context.go('/marketplace'),
                     child: const Text('View All'),
@@ -116,24 +126,90 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            SizedBox(
-              height: 200,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: 0,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (_, index) => const SizedBox.shrink(),
+
+            dashboardAsync.when(
+              loading: () => const SizedBox(
+                height: 200,
+                child: Center(child: CircularProgressIndicator()),
               ),
-            ),
-            const SizedBox(
-              height: 120,
-              child: Center(
-                child: Text(
-                  'No listings yet. Items you save will appear here.',
-                  style: TextStyle(color: Colors.grey),
-                ),
+              error: (_, __) => const SizedBox(
+                height: 200,
+                child: Center(child: Text('Could not load listings', style: TextStyle(color: Colors.grey))),
               ),
+              data: (dashboard) {
+                if (dashboard.recentListings.isEmpty) {
+                  return const SizedBox(
+                    height: 120,
+                    child: Center(
+                      child: Text(
+                        'No listings yet. Items you save will appear here.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  );
+                }
+                return SizedBox(
+                  height: 200,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: dashboard.recentListings.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                    itemBuilder: (_, index) {
+                      final listing = dashboard.recentListings[index];
+                      return SizedBox(
+                        width: 160,
+                        child: Card(
+                          clipBehavior: Clip.antiAlias,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: listing.imageUrl != null
+                                    ? Image.network(
+                                        listing.imageUrl!,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) => Container(
+                                          color: Colors.grey[200],
+                                          child: const Center(child: Icon(Icons.image, color: Colors.grey)),
+                                        ),
+                                      )
+                                    : Container(
+                                        color: Colors.grey[200],
+                                        child: const Center(child: Icon(Icons.image, color: Colors.grey)),
+                                      ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      listing.title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '₹${listing.price}',
+                                      style: TextStyle(
+                                        color: theme.colorScheme.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
             ),
 
             const SizedBox(height: 24),
@@ -155,7 +231,7 @@ class _StatBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(

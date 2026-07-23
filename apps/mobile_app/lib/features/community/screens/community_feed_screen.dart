@@ -1,92 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/theme/app_theme.dart';
 import 'package:mobile_app/core/widgets/empty_state.dart';
+import 'package:mobile_app/features/community/models/post.dart';
+import 'package:mobile_app/features/community/models/community_filter.dart';
+import 'package:mobile_app/features/community/providers/community_provider.dart';
+import 'package:mobile_app/features/community/data/community_repository.dart';
+import 'package:mobile_app/core/widgets/notifications_badge.dart';
 
-class CommunityFeedScreen extends StatefulWidget {
+class CommunityFeedScreen extends ConsumerStatefulWidget {
   const CommunityFeedScreen({super.key});
 
   @override
-  State<CommunityFeedScreen> createState() => _CommunityFeedScreenState();
+  ConsumerState<CommunityFeedScreen> createState() => _CommunityFeedScreenState();
 }
 
-class _CommunityFeedScreenState extends State<CommunityFeedScreen>
+class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String _selectedFilter = 'all';
-
-  final List<_MockPost> _posts = [
-    _MockPost(
-      id: '1',
-      author: 'Priya M.',
-      avatar: 'PM',
-      type: 'diy',
-      content:
-          'Turned old jeans into a tote bag! Used the DIY Studio guide - took about 2 hours. Here are the before/after photos.',
-      likes: 24,
-      comments: 8,
-      timeAgo: '2h ago',
-    ),
-    _MockPost(
-      id: '2',
-      author: 'Rahul K.',
-      avatar: 'RK',
-      type: 'tip',
-      content:
-          'Pro tip: Before throwing away electronics, check if your campus has an e-waste collection point. Most colleges do!',
-      likes: 42,
-      comments: 15,
-      timeAgo: '5h ago',
-    ),
-    _MockPost(
-      id: '3',
-      author: 'Aisha S.',
-      avatar: 'AS',
-      type: 'marketplace',
-      content:
-          'Listing my 2nd year textbooks at 50% off. All in great condition. DM me if interested!',
-      likes: 12,
-      comments: 6,
-      timeAgo: '1d ago',
-    ),
-    _MockPost(
-      id: '4',
-      author: 'Campus Green Club',
-      avatar: 'CG',
-      type: 'diy',
-      content:
-          'Check out this amazing planter made from recycled plastic bottles. Perfect for your dorm room!',
-      likes: 67,
-      comments: 23,
-      timeAgo: '2d ago',
-    ),
-  ];
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      ref.read(communityFeedProvider.notifier).loadMore();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final filteredPosts = _selectedFilter == 'all'
-        ? _posts
-        : _posts.where((p) => p.type == _selectedFilter).toList();
+    final feedAsync = ref.watch(communityFeedProvider);
+    final currentFilter = ref.watch(communityFilterProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Community'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () => context.push('/notifications'),
+          NotificationsBadge(
+            child: IconButton(
+              icon: const Icon(Icons.notifications_outlined),
+              onPressed: () => context.push('/notifications'),
+            ),
           ),
         ],
       ),
@@ -98,55 +66,88 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen>
               children: [
                 _FilterChip(
                   label: 'All',
-                  selected: _selectedFilter == 'all',
-                  onTap: () => setState(() => _selectedFilter = 'all'),
+                  selected: currentFilter.postType == null,
+                  onTap: () {
+                    ref.read(communityFilterProvider.notifier).state = const CommunityFilter();
+                  },
                 ),
                 const SizedBox(width: 8),
                 _FilterChip(
                   label: 'DIY',
-                  selected: _selectedFilter == 'diy',
-                  onTap: () => setState(() => _selectedFilter = 'diy'),
+                  selected: currentFilter.postType == 'diy',
+                  onTap: () {
+                    ref.read(communityFilterProvider.notifier).state = const CommunityFilter(postType: 'diy');
+                  },
                   icon: Icons.build,
                 ),
                 const SizedBox(width: 8),
                 _FilterChip(
                   label: 'Tips',
-                  selected: _selectedFilter == 'tip',
-                  onTap: () => setState(() => _selectedFilter = 'tip'),
+                  selected: currentFilter.postType == 'tip',
+                  onTap: () {
+                    ref.read(communityFilterProvider.notifier).state = const CommunityFilter(postType: 'tip');
+                  },
                   icon: Icons.lightbulb,
                 ),
                 const SizedBox(width: 8),
                 _FilterChip(
                   label: 'Market',
-                  selected: _selectedFilter == 'marketplace',
-                  onTap: () =>
-                      setState(() => _selectedFilter = 'marketplace'),
+                  selected: currentFilter.postType == 'marketplace',
+                  onTap: () {
+                    ref.read(communityFilterProvider.notifier).state = const CommunityFilter(postType: 'marketplace');
+                  },
                   icon: Icons.storefront,
                 ),
               ],
             ),
           ),
           Expanded(
-            child: filteredPosts.isEmpty
-                ? const EmptyState(
+            child: feedAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Error: $e'),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () => ref.invalidate(communityFeedProvider),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
+              data: (paginated) {
+                if (paginated.posts.isEmpty) {
+                  return const EmptyState(
                     icon: Icons.forum_outlined,
                     title: 'No posts yet',
                     subtitle: 'Be the first to share something with the community',
                     actionLabel: 'Create Post',
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: filteredPosts.length,
-                    itemBuilder: (context, index) {
-                      final post = filteredPosts[index];
-                      return _PostCard(
-                        post: post,
-                        onTap: () => context.push('/community/post/${post.id}'),
-                        onLike: () => setState(() => post.liked = !post.liked),
-                        onReport: () => _showReportDialog(context, post),
-                      );
-                    },
-                  ),
+                  );
+                }
+                return ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: paginated.posts.length + (paginated.hasMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+              if (index == paginated.posts.length) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                    }
+                    final post = paginated.posts[index];
+                    return _PostCard(
+                      post: post,
+                      onTap: () => context.push('/community/post/${post.id}'),
+                      onLike: () => _toggleLike(post),
+                      onReport: () => _showReportDialog(context, post),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -157,55 +158,74 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen>
     );
   }
 
-  void _showReportDialog(BuildContext context, _MockPost post) {
+  void _toggleLike(Post post) async {
+    final repo = ref.read(communityRepositoryProvider);
+    final previousIsLiked = post.isLiked;
+    final previousLikesCount = post.likesCount;
+
+    ref.read(communityFeedProvider.notifier).toggleLike(
+      post.id,
+      isCurrentlyLiked: post.isLiked,
+      currentLikesCount: post.likesCount,
+    );
+
+    try {
+      await repo.likePost(post.id);
+    } catch (e) {
+      ref.read(communityFeedProvider.notifier).toggleLike(
+        post.id,
+        isCurrentlyLiked: previousIsLiked,
+        currentLikesCount: previousLikesCount - 1,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not update like')),
+        );
+      }
+    }
+  }
+
+  void _showReportDialog(BuildContext context, Post post) {
+    final reasons = [
+      ('spam', 'Spam', Icons.report_outlined),
+      ('inappropriate', 'Inappropriate', Icons.warning),
+      ('scam', 'Scam', Icons.shield),
+      ('other', 'Other', Icons.more_horiz),
+    ];
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Report Post'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.spam),
-              title: const Text('Spam'),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Report submitted')),
+          children: reasons.map((r) => ListTile(
+            leading: Icon(r.$3),
+            title: Text(r.$2),
+            onTap: () async {
+              Navigator.pop(context);
+              try {
+                await ref.read(communityRepositoryProvider).reportContent(
+                  CreateReportRequest(
+                    contentType: 'post',
+                    contentId: post.id,
+                    reason: r.$1,
+                  ),
                 );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.warning),
-              title: const Text('Inappropriate'),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Report submitted')),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.shield),
-              title: const Text('Scam'),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Report submitted')),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.more_horiz),
-              title: const Text('Other'),
-              onTap: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Report submitted')),
-                );
-              },
-            ),
-          ],
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Report submitted')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Failed to submit report')),
+                  );
+                }
+              }
+            },
+          )).toList(),
         ),
       ),
     );
@@ -258,7 +278,7 @@ class _FilterChip extends StatelessWidget {
 }
 
 class _PostCard extends StatelessWidget {
-  final _MockPost post;
+  final Post post;
   final VoidCallback onTap;
   final VoidCallback onLike;
   final VoidCallback onReport;
@@ -271,36 +291,50 @@ class _PostCard extends StatelessWidget {
   });
 
   Color get _typeColor {
-    switch (post.type) {
+    switch (post.postType) {
       case 'diy':
         return Colors.orange;
       case 'tip':
         return Colors.blue;
       case 'marketplace':
         return AppColors.primary;
+      default:
+        return Colors.grey;
     }
   }
 
   String get _typeLabel {
-    switch (post.type) {
+    switch (post.postType) {
       case 'diy':
         return 'DIY';
       case 'tip':
         return 'Tip';
       case 'marketplace':
         return 'Marketplace';
+      default:
+        return 'Post';
     }
   }
 
   IconData get _typeIcon {
-    switch (post.type) {
+    switch (post.postType) {
       case 'diy':
         return Icons.build;
       case 'tip':
         return Icons.lightbulb;
       case 'marketplace':
         return Icons.storefront;
+      default:
+        return Icons.article;
     }
+  }
+
+  String _timeAgo(DateTime date) {
+    final diff = DateTime.now().difference(date);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${(diff.inDays / 7).floor()}w ago';
   }
 
   @override
@@ -319,9 +353,9 @@ class _PostCard extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 20,
-                    backgroundColor: _typeColor.withOpacity(0.1),
+                    backgroundColor: _typeColor.withValues(alpha: 0.1),
                     child: Text(
-                      post.avatar,
+                      post.author.initials,
                       style: TextStyle(
                         color: _typeColor,
                         fontWeight: FontWeight.bold,
@@ -335,27 +369,20 @@ class _PostCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          post.author,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
+                          post.author.fullName,
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                         ),
                         Text(
-                          post.timeAgo,
-                          style: TextStyle(
-                            color: Colors.grey[500],
-                            fontSize: 12,
-                          ),
+                          _timeAgo(post.createdAt),
+                          style: TextStyle(color: Colors.grey[500], fontSize: 12),
                         ),
                       ],
                     ),
                   ),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _typeColor.withOpacity(0.1),
+                      color: _typeColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -365,11 +392,7 @@ class _PostCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           _typeLabel,
-                          style: TextStyle(
-                            color: _typeColor,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: TextStyle(color: _typeColor, fontSize: 10, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -385,10 +408,7 @@ class _PostCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              Text(
-                post.content,
-                style: const TextStyle(fontSize: 14, height: 1.4),
-              ),
+              Text(post.content, style: const TextStyle(fontSize: 14, height: 1.4)),
               const SizedBox(height: 12),
               Row(
                 children: [
@@ -397,17 +417,14 @@ class _PostCard extends StatelessWidget {
                     child: Row(
                       children: [
                         Icon(
-                          post.liked ? Icons.favorite : Icons.favorite_border,
+                          post.isLiked ? Icons.favorite : Icons.favorite_border,
                           size: 18,
-                          color: post.liked ? Colors.red : Colors.grey,
+                          color: post.isLiked ? Colors.red : Colors.grey,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${post.likes + (post.liked ? 1 : 0)}',
-                          style: TextStyle(
-                            color: post.liked ? Colors.red : Colors.grey,
-                            fontSize: 13,
-                          ),
+                          '${post.likesCount}',
+                          style: TextStyle(color: post.isLiked ? Colors.red : Colors.grey, fontSize: 13),
                         ),
                       ],
                     ),
@@ -419,10 +436,7 @@ class _PostCard extends StatelessWidget {
                       children: [
                         Icon(Icons.comment_outlined, size: 18, color: Colors.grey[500]),
                         const SizedBox(width: 4),
-                        Text(
-                          '${post.comments}',
-                          style: TextStyle(color: Colors.grey[500], fontSize: 13),
-                        ),
+                        Text('${post.commentsCount}', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
                       ],
                     ),
                   ),
@@ -439,28 +453,4 @@ class _PostCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _MockPost {
-  final String id;
-  final String author;
-  final String avatar;
-  final String type;
-  final String content;
-  final int likes;
-  final int comments;
-  final String timeAgo;
-  bool liked;
-
-  _MockPost({
-    required this.id,
-    required this.author,
-    required this.avatar,
-    required this.type,
-    required this.content,
-    required this.likes,
-    required this.comments,
-    required this.timeAgo,
-    this.liked = false,
-  });
 }

@@ -7,7 +7,10 @@ export class DiyQueryDto {
   @IsString()
   category?: string;
 
-  @ApiPropertyOptional({ enum: ['easy', 'medium', 'hard'], description: 'Filter by difficulty' })
+  @ApiPropertyOptional({
+    enum: ['easy', 'medium', 'hard'],
+    description: 'Filter by difficulty',
+  })
   @IsOptional()
   @IsEnum(['easy', 'medium', 'hard'] as const)
   difficulty?: string;

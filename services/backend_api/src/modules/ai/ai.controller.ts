@@ -1,9 +1,23 @@
 import {
-  Controller, Post, Get, UseGuards, UseInterceptors,
-  UploadedFile, Query, Param, Body,
+  Controller,
+  Post,
+  Get,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  Query,
+  Param,
+  Body,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AiService } from './ai.service';
@@ -24,8 +38,15 @@ export class AiController {
     schema: {
       type: 'object',
       properties: {
-        file: { type: 'string', format: 'binary', description: 'Image file (JPEG/PNG, max 5MB)' },
-        image_url: { type: 'string', description: 'Image URL (alternative to file upload)' },
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Image file (JPEG/PNG, max 5MB)',
+        },
+        image_url: {
+          type: 'string',
+          description: 'Image URL (alternative to file upload)',
+        },
       },
     },
   })
@@ -35,12 +56,16 @@ export class AiController {
     @Body() dto?: ClassifyDto,
   ) {
     if (file) {
-      return this.aiService.classifyImage(userId, file.buffer, file.originalname);
+      return this.aiService.classifyImage(
+        userId,
+        file.buffer,
+        file.originalname,
+      );
     }
     if (dto?.image_url) {
       return this.aiService.classifyImageByUrl(userId, dto.image_url);
     }
-    return { error: 'Provide either file or image_url' };
+    throw new BadRequestException('Provide either file or image_url');
   }
 
   @Get('scans')

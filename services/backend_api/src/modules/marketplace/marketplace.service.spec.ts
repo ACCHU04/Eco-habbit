@@ -66,7 +66,11 @@ describe('MarketplaceService', () => {
   describe('getListings', () => {
     it('should return paginated active listings', async () => {
       const mockData = [{ id: '1', title: 'Item 1', status: 'active' }];
-      mockSupabase.single.mockResolvedValue({ data: mockData, error: null, count: 1 });
+      mockSupabase.single.mockResolvedValue({
+        data: mockData,
+        error: null,
+        count: 1,
+      });
 
       const result = await service.getListings({ page: 1, limit: 20 });
 
@@ -88,7 +92,10 @@ describe('MarketplaceService', () => {
     });
 
     it('should throw NotFoundException for missing listing', async () => {
-      mockSupabase.single.mockResolvedValue({ data: null, error: { message: 'not found' } });
+      mockSupabase.single.mockResolvedValue({
+        data: null,
+        error: { message: 'not found' },
+      });
 
       await expect(service.getListingById('nonexistent')).rejects.toThrow();
     });
@@ -98,15 +105,23 @@ describe('MarketplaceService', () => {
     it('should update own listing', async () => {
       mockSupabase.single
         .mockResolvedValueOnce({ data: { seller_id: 'user-1' }, error: null })
-        .mockResolvedValueOnce({ data: { id: 'test-id', title: 'Updated' }, error: null });
+        .mockResolvedValueOnce({
+          data: { id: 'test-id', title: 'Updated' },
+          error: null,
+        });
 
-      const result = await service.updateListing('test-id', 'user-1', { title: 'Updated' });
+      const result = await service.updateListing('test-id', 'user-1', {
+        title: 'Updated',
+      });
 
       expect(result.success).toBe(true);
     });
 
     it('should throw ForbiddenException for other users listing', async () => {
-      mockSupabase.single.mockResolvedValue({ data: { seller_id: 'user-2' }, error: null });
+      mockSupabase.single.mockResolvedValue({
+        data: { seller_id: 'user-2' },
+        error: null,
+      });
 
       await expect(
         service.updateListing('test-id', 'user-1', { title: 'Hacked' }),
@@ -116,7 +131,10 @@ describe('MarketplaceService', () => {
 
   describe('deleteListing', () => {
     it('should soft-delete own listing', async () => {
-      mockSupabase.single.mockResolvedValue({ data: { seller_id: 'user-1' }, error: null });
+      mockSupabase.single.mockResolvedValue({
+        data: { seller_id: 'user-1' },
+        error: null,
+      });
 
       const mockUpdateChain = {
         eq: jest.fn().mockResolvedValue({ error: null }),

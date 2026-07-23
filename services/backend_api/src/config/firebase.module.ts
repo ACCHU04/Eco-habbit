@@ -17,7 +17,9 @@ export const FIREBASE_ADMIN = 'FIREBASE_ADMIN';
         }
 
         const projectId = config.get<string>('FIREBASE_PROJECT_ID');
-        const privateKey = config.get<string>('FIREBASE_PRIVATE_KEY')?.replace(/\\n/g, '\n');
+        const privateKey = config
+          .get<string>('FIREBASE_PRIVATE_KEY')
+          ?.replace(/\\n/g, '\n');
         const clientEmail = config.get<string>('FIREBASE_CLIENT_EMAIL');
 
         return initializeApp({

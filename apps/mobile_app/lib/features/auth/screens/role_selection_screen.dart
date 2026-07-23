@@ -54,7 +54,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
             Text(
               'This helps us personalize your experience',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
             const SizedBox(height: 32),
@@ -66,14 +66,14 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                       side: BorderSide(
                         color: _selectedRole == role['id']
                             ? theme.colorScheme.primary
-                            : theme.colorScheme.outline.withOpacity(0.3),
+                            : theme.colorScheme.outline.withValues(alpha: 0.3),
                         width: _selectedRole == role['id'] ? 2 : 1,
                       ),
                     ),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
                       onTap: () =>
-                          setState(() => _selectedRole = role['id']),
+                          setState(() => _selectedRole = role['id'] as String?),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Row(
@@ -84,7 +84,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                               color: _selectedRole == role['id']
                                   ? theme.colorScheme.primary
                                   : theme.colorScheme.onSurface
-                                      .withOpacity(0.6),
+                                      .withValues(alpha: 0.6),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
@@ -102,7 +102,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                                     role['description'] as String,
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: theme.colorScheme.onSurface
-                                          .withOpacity(0.6),
+                                          .withValues(alpha: 0.6),
                                     ),
                                   ),
                                 ],

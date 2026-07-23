@@ -1,16 +1,19 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile_app/features/scanner/data/ai_repository.dart';
+import 'package:mobile_app/features/scanner/models/scan_result_data.dart';
 
-class ScannerScreen extends StatefulWidget {
+class ScannerScreen extends ConsumerStatefulWidget {
   const ScannerScreen({super.key});
 
   @override
-  State<ScannerScreen> createState() => _ScannerScreenState();
+  ConsumerState<ScannerScreen> createState() => _ScannerScreenState();
 }
 
-class _ScannerScreenState extends State<ScannerScreen> {
+class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   final _picker = ImagePicker();
   bool _isLoading = false;
 
@@ -27,19 +30,13 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
       setState(() => _isLoading = true);
 
-      // TODO: Upload to NestJS /ai/classify endpoint
-      await Future.delayed(const Duration(seconds: 2));
+      final file = File(image.path);
+      final result = await ref.read(aiRepositoryProvider).classifyImage(file);
+      final scanData = ScanResultData.fromResult(result, image.path);
 
       if (mounted) {
         setState(() => _isLoading = false);
-        context.push('/scan-result', extra: {
-          'imagePath': image.path,
-          'category': 'plastic',
-          'confidence': 0.94,
-          'disposalTips': 'Rinse and recycle in plastic recycling bin.',
-          'isUncertain': false,
-          'diySuggestions': [],
-        });
+        context.push('/scan-result', extra: scanData);
       }
     } catch (e) {
       setState(() => _isLoading = false);
@@ -68,7 +65,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   Icon(
                     Icons.document_scanner_outlined,
                     size: 120,
-                    color: theme.colorScheme.primary.withOpacity(0.3),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.3),
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -82,7 +79,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     'Identify waste material and get\nrecycling tips + DIY suggestions',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                   const SizedBox(height: 48),
@@ -127,7 +124,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                         Text(
                           'AI is classifying your item',
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.6),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                         ),
                       ],

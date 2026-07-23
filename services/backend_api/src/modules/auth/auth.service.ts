@@ -1,4 +1,9 @@
-import { Injectable, Inject, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 import { FIREBASE_ADMIN } from '../../config/firebase.module';
 import { CreateRegisterDto } from './dto/register.dto';

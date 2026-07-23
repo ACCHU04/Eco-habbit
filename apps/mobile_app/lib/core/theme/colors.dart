@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class EcoColors {
   // Primary
@@ -38,3 +37,5 @@ class EcoColors {
   static const info = Color(0xFF2563EB);
   static const infoContainer = Color(0xFFDBEAFE);
 }
+
+typedef AppColors = EcoColors;

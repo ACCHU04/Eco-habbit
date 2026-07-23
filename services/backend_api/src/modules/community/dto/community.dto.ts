@@ -1,4 +1,11 @@
-import { IsString, IsEnum, IsArray, IsOptional, IsUUID, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsEnum,
+  IsArray,
+  IsOptional,
+  IsUUID,
+  MaxLength,
+} from 'class-validator';
 
 export class CreatePostDto {
   @IsEnum(['diy', 'tip', 'marketplace'] as const)

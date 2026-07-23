@@ -11,8 +11,10 @@ import 'package:mobile_app/features/marketplace/screens/marketplace_browse_scree
 import 'package:mobile_app/features/marketplace/screens/listing_details_screen.dart';
 import 'package:mobile_app/features/marketplace/screens/create_listing_screen.dart';
 import 'package:mobile_app/features/marketplace/screens/my_listings_screen.dart';
+import 'package:mobile_app/features/marketplace/models/listing.dart';
 import 'package:mobile_app/features/scanner/screens/scanner_screen.dart';
 import 'package:mobile_app/features/scanner/screens/scan_result_screen.dart';
+import 'package:mobile_app/features/scanner/models/scan_result_data.dart';
 import 'package:mobile_app/features/diy/screens/diy_browse_screen.dart';
 import 'package:mobile_app/features/diy/screens/project_details_screen.dart';
 import 'package:mobile_app/features/community/screens/community_feed_screen.dart';
@@ -20,7 +22,7 @@ import 'package:mobile_app/features/community/screens/create_post_screen.dart';
 import 'package:mobile_app/features/community/screens/post_detail_screen.dart';
 import 'package:mobile_app/features/profile/screens/profile_screen.dart';
 import 'package:mobile_app/features/profile/screens/settings_screen.dart';
-import 'package:mobile_app/features/rewards/screens/notifications_screen.dart';
+import 'package:mobile_app/features/notifications/screens/notifications_screen.dart';
 import 'package:mobile_app/features/rewards/screens/rewards_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -107,11 +109,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       GoRoute(
         path: '/marketplace/:id',
-        builder: (context, state) => const ListingDetailsScreen(),
+        builder: (context, state) => ListingDetailsScreen(
+          listingId: state.pathParameters['id']!,
+        ),
       ),
       GoRoute(
         path: '/create-listing',
-        builder: (context, state) => const CreateListingScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Listing?;
+          return CreateListingScreen(existingListing: extra);
+        },
       ),
       GoRoute(
         path: '/my-listings',
@@ -119,7 +126,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/scan-result',
-        builder: (context, state) => const ScanResultScreen(),
+        builder: (context, state) {
+          final data = state.extra as ScanResultData;
+          return ScanResultScreen(data: data);
+        },
       ),
       GoRoute(
         path: '/diy',
@@ -127,7 +137,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/diy/:id',
-        builder: (context, state) => const ProjectDetailsScreen(),
+        builder: (context, state) => ProjectDetailsScreen(
+          projectId: state.pathParameters['id']!,
+        ),
       ),
       GoRoute(
         path: '/create-post',

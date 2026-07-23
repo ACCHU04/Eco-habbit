@@ -1,5 +1,10 @@
-import { Controller, Get, Put, Body, Param, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, Put, Post, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
@@ -15,7 +20,7 @@ export class UsersController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user profile' })
   @ApiResponse({ status: 200, description: 'User profile' })
-  async getProfile(@CurrentUser('uid') userId: string) {
+  async getProfile(@CurrentUser('id') userId: string) {
     return this.usersService.getProfile(userId);
   }
 
@@ -25,10 +30,22 @@ export class UsersController {
   @ApiOperation({ summary: 'Update current user profile' })
   @ApiResponse({ status: 200, description: 'Profile updated' })
   async updateProfile(
-    @CurrentUser('uid') userId: string,
+    @CurrentUser('id') userId: string,
     @Body() dto: UpdateUserDto,
   ) {
     return this.usersService.updateProfile(userId, dto);
+  }
+
+  @Post('fcm-token')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Register or clear FCM token' })
+  @ApiResponse({ status: 201, description: 'FCM token saved' })
+  async upsertFcmToken(
+    @CurrentUser('id') userId: string,
+    @Body('fcm_token') fcmToken: string | null,
+  ) {
+    return this.usersService.upsertFcmToken(userId, fcmToken);
   }
 
   @Get(':id')

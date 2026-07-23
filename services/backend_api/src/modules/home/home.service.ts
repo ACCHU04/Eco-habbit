@@ -19,7 +19,9 @@ export class HomeService {
       this.supabase.rpc('get_user_points', { p_user_id: userId }),
       this.supabase
         .from('marketplace_listings')
-        .select('id, title, price, category, condition, marketplace_listing_images(image_url)')
+        .select(
+          'id, title, price, category, condition, marketplace_listing_images(image_url)',
+        )
         .eq('status', 'active')
         .order('created_at', { ascending: false })
         .limit(6),

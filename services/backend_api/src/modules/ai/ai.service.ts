@@ -45,19 +45,27 @@ export class AiService {
 
     // Tier 2: Forward to FastAPI (which has its own Redis cache)
     const formData = new FormData();
-    const blob = new Blob([new Uint8Array(imageBuffer)], { type: 'image/jpeg' });
+    const blob = new Blob([new Uint8Array(imageBuffer)], {
+      type: 'image/jpeg',
+    });
     formData.append('file', blob, 'image.jpg');
 
     const response = await firstValueFrom<AxiosResponse<ClassifyResponse>>(
-      this.httpService.post(`${this.aiServiceUrl}/api/v1/ai/classify`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 30000,
-      }),
+      this.httpService.post(
+        `${this.aiServiceUrl}/api/v1/ai/classify`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 30000,
+        },
+      ),
     );
     const aiResult = response.data;
 
     // Persist to ai_scan_cache (30-day TTL)
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const expiresAt = new Date(
+      Date.now() + 30 * 24 * 60 * 60 * 1000,
+    ).toISOString();
     await this.supabase.from('ai_scan_cache').insert({
       image_hash: imageHash,
       result: aiResult,
@@ -91,15 +99,21 @@ export class AiService {
     formData.append('image_url', imageUrl);
 
     const response = await firstValueFrom<AxiosResponse<ClassifyResponse>>(
-      this.httpService.post(`${this.aiServiceUrl}/api/v1/ai/classify`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 30000,
-      }),
+      this.httpService.post(
+        `${this.aiServiceUrl}/api/v1/ai/classify`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 30000,
+        },
+      ),
     );
     const aiResult = response.data;
 
     // Cache by URL hash
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const expiresAt = new Date(
+      Date.now() + 30 * 24 * 60 * 60 * 1000,
+    ).toISOString();
     await this.supabase.from('ai_scan_cache').insert({
       image_hash: urlHash,
       result: aiResult,

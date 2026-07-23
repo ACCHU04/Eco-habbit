@@ -20,7 +20,9 @@ export class AuthGuard implements CanActivate {
     const authHeader = request.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Missing or invalid authorization header');
+      throw new UnauthorizedException(
+        'Missing or invalid authorization header',
+      );
     }
 
     const token = authHeader.split('Bearer ')[1];
@@ -29,6 +31,8 @@ export class AuthGuard implements CanActivate {
       const auth = getAuth(this.firebaseApp as any);
       const decodedToken = await auth.verifyIdToken(token);
       request.user = {
+        id: decodedToken.uid,
+        // TODO: Remove 'uid' once all controllers use 'id'
         uid: decodedToken.uid,
         email: decodedToken.email,
       };
