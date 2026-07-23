@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile_app/features/diy/models/diy_project_model.dart';
 
 class ProjectDetailsScreen extends StatefulWidget {
   const ProjectDetailsScreen({super.key});
@@ -16,20 +17,15 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Sample data — will be replaced with API data
-    const title = 'Plastic Bottle Planter';
-    const description = 'Turn plastic bottles into hanging planters for your dorm room.';
-    const difficulty = 'easy';
-    const estimatedTime = '30 minutes';
-    const estimatedPrice = 150;
-    const materials = ['Plastic bottle', 'Scissors', 'Rope', 'Paint'];
-    const steps = [
-      'Cut the bottle in half horizontally',
-      'Poke drainage holes in the bottom',
-      'Paint and decorate the outside',
-      'Thread rope through holes for hanging',
-      'Add soil and plant',
-    ];
+    // Sample data — will be replaced with API data in v1.0.0
+    const project = DiyProject.sample;
+    const title = project.title;
+    const description = project.description;
+    const difficulty = project.difficulty;
+    const estimatedTime = project.estimatedTime;
+    const estimatedPrice = project.estimatedPrice;
+    const materials = project.materials;
+    const steps = project.steps;
 
     return Scaffold(
       appBar: AppBar(
@@ -47,7 +43,6 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header image placeholder
             Container(
               height: 200,
               width: double.infinity,
@@ -58,13 +53,11 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
                 color: theme.colorScheme.onPrimaryContainer,
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title + difficulty badge
                   Row(
                     children: [
                       Expanded(
@@ -76,7 +69,8 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: const Color(0xFF059669).withOpacity(0.15),
                           borderRadius: BorderRadius.circular(12),
@@ -93,22 +87,25 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
                     ],
                   ),
                   const SizedBox(height: 8),
-
-                  // Meta row
                   Row(
                     children: [
-                      Icon(Icons.schedule, size: 16, color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                      Icon(Icons.schedule,
+                          size: 16,
+                          color:
+                              theme.colorScheme.onSurface.withOpacity(0.5)),
                       const SizedBox(width: 4),
                       Text(estimatedTime, style: theme.textTheme.bodySmall),
                       const SizedBox(width: 16),
-                      Icon(Icons.sell_outlined, size: 16, color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                      Icon(Icons.sell_outlined,
+                          size: 16,
+                          color:
+                              theme.colorScheme.onSurface.withOpacity(0.5)),
                       const SizedBox(width: 4),
-                      Text('Est. ₹$estimatedPrice', style: theme.textTheme.bodySmall),
+                      Text('Est. ₹$estimatedPrice',
+                          style: theme.textTheme.bodySmall),
                     ],
                   ),
                   const SizedBox(height: 16),
-
-                  // Description
                   Text(
                     description,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -116,8 +113,6 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  // Materials
                   Text(
                     'Materials Needed',
                     style: theme.textTheme.titleMedium?.copyWith(
@@ -126,22 +121,20 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
                   ),
                   const SizedBox(height: 8),
                   ...materials.map((m) => Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.check_circle_outline,
-                          size: 18,
-                          color: theme.colorScheme.primary,
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle_outline,
+                              size: 18,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(m, style: theme.textTheme.bodyMedium),
+                          ],
                         ),
-                        const SizedBox(width: 8),
-                        Text(m, style: theme.textTheme.bodyMedium),
-                      ],
-                    ),
-                  )),
+                      )),
                   const SizedBox(height: 24),
-
-                  // Steps
                   Text(
                     'Instructions',
                     style: theme.textTheme.titleMedium?.copyWith(
@@ -179,12 +172,14 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
                                 border: Border.all(
                                   color: isCompleted
                                       ? theme.colorScheme.primary
-                                      : theme.colorScheme.outline.withOpacity(0.3),
+                                      : theme.colorScheme.outline
+                                          .withOpacity(0.3),
                                 ),
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: isCompleted
-                                  ? const Icon(Icons.check, size: 16, color: Colors.white)
+                                  ? const Icon(Icons.check,
+                                      size: 16, color: Colors.white)
                                   : Center(
                                       child: Text(
                                         '${i + 1}',
@@ -198,9 +193,12 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
                             child: Text(
                               step,
                               style: theme.textTheme.bodyMedium?.copyWith(
-                                decoration: isCompleted ? TextDecoration.lineThrough : null,
+                                decoration: isCompleted
+                                    ? TextDecoration.lineThrough
+                                    : null,
                                 color: isCompleted
-                                    ? theme.colorScheme.onSurface.withOpacity(0.4)
+                                    ? theme.colorScheme.onSurface
+                                        .withOpacity(0.4)
                                     : null,
                               ),
                             ),
@@ -220,7 +218,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen> {
           padding: const EdgeInsets.all(16),
           child: OutlinedButton.icon(
             onPressed: () {
-              // TODO: Share to community
+              context.push('/create-post', extra: {
+                'type': 'diy',
+                'project': DiyProject.sample,
+              });
             },
             icon: const Icon(Icons.share_outlined),
             label: const Text('Share to Community'),

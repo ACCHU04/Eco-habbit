@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile_app/core/widgets/empty_state.dart';
 
 class MarketplaceBrowseScreen extends ConsumerStatefulWidget {
   const MarketplaceBrowseScreen({super.key});
@@ -109,6 +110,14 @@ class _MarketplaceBrowseScreenState extends ConsumerState<MarketplaceBrowseScree
                 imageUrl: null,
                 onTap: () => context.push('/marketplace/placeholder'),
               ),
+            ),
+          ),
+          const Expanded(
+            child: EmptyState(
+              icon: Icons.storefront_outlined,
+              title: 'No listings yet',
+              subtitle: 'Be the first to list an item on the marketplace',
+              actionLabel: 'Create Listing',
             ),
           ),
         ],

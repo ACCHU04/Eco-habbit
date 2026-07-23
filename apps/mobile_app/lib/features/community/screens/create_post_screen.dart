@@ -1,18 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/theme/app_theme.dart';
+import 'package:mobile_app/features/diy/models/diy_project_model.dart';
 
 class CreatePostScreen extends StatefulWidget {
-  const CreatePostScreen({super.key});
+  final Map<String, dynamic>? extra;
+  const CreatePostScreen({super.key, this.extra});
 
   @override
   State<CreatePostScreen> createState() => _CreatePostScreenState();
 }
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
-  String _selectedType = 'tip';
-  final _contentController = TextEditingController();
+  late String _selectedType;
+  late final TextEditingController _contentController;
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedType = widget.extra?['type'] as String? ?? 'tip';
+
+    final project = widget.extra?['project'] as DiyProject?;
+    if (project != null) {
+      _contentController = TextEditingController(
+        text:
+            'Just completed "${project.title}"! ${project.description}\n\n'
+            'Materials: ${project.materials.join(", ")}\n'
+            'Time: ${project.estimatedTime} | Difficulty: ${project.difficulty}',
+      );
+    } else {
+      _contentController = TextEditingController();
+    }
+  }
 
   @override
   void dispose() {
@@ -34,7 +54,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Post', style: TextStyle(fontWeight: FontWeight.bold)),
+                : const Text('Post',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -83,7 +104,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 filled: true,
-                fillColor: Colors.grey[50],
+                fillColor: Theme.of(context).colorScheme.surface,
               ),
             ),
             const SizedBox(height: 16),
@@ -175,7 +196,9 @@ class _TypeChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: selected ? Colors.white : Colors.grey[600]),
+            Icon(icon,
+                size: 14,
+                color: selected ? Colors.white : Colors.grey[600]),
             const SizedBox(width: 4),
             Text(
               label,
@@ -219,7 +242,8 @@ class _ActionButton extends StatelessWidget {
             child: Icon(icon, color: AppColors.primary),
           ),
           const SizedBox(height: 4),
-          Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+          Text(label,
+              style: TextStyle(fontSize: 11, color: Colors.grey[600])),
         ],
       ),
     );

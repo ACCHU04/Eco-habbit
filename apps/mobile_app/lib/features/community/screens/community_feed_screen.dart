@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/theme/app_theme.dart';
+import 'package:mobile_app/core/widgets/empty_state.dart';
 
 class CommunityFeedScreen extends StatefulWidget {
   const CommunityFeedScreen({super.key});
@@ -126,19 +127,26 @@ class _CommunityFeedScreenState extends State<CommunityFeedScreen>
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: filteredPosts.length,
-              itemBuilder: (context, index) {
-                final post = filteredPosts[index];
-                return _PostCard(
-                  post: post,
-                  onTap: () => context.push('/community/post/${post.id}'),
-                  onLike: () => setState(() => post.liked = !post.liked),
-                  onReport: () => _showReportDialog(context, post),
-                );
-              },
-            ),
+            child: filteredPosts.isEmpty
+                ? const EmptyState(
+                    icon: Icons.forum_outlined,
+                    title: 'No posts yet',
+                    subtitle: 'Be the first to share something with the community',
+                    actionLabel: 'Create Post',
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: filteredPosts.length,
+                    itemBuilder: (context, index) {
+                      final post = filteredPosts[index];
+                      return _PostCard(
+                        post: post,
+                        onTap: () => context.push('/community/post/${post.id}'),
+                        onLike: () => setState(() => post.liked = !post.liked),
+                        onReport: () => _showReportDialog(context, post),
+                      );
+                    },
+                  ),
           ),
         ],
       ),

@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile_app/features/auth/providers/auth_provider.dart';
 
 class ProfileSetupScreen extends ConsumerStatefulWidget {
   const ProfileSetupScreen({super.key});
 
   @override
-  ConsumerState<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
+  ConsumerState<ProfileSetupScreen> createState() =>
+      _ProfileSetupScreenState();
 }
 
 class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   final _bioController = TextEditingController();
   String? _selectedAvatar;
+  bool _isSaving = false;
 
   final _avatars = ['🧑‍🎓', '👩‍💻', '🧑‍🔬', '👨‍🎨', '👩‍🏫', '🧑‍🚀'];
 
@@ -19,6 +22,16 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   void dispose() {
     _bioController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleComplete() async {
+    setState(() => _isSaving = true);
+
+    await ref.read(authProvider.notifier).completeSetup(
+          bio: _bioController.text.isNotEmpty ? _bioController.text : null,
+        );
+
+    if (mounted) context.go('/home');
   }
 
   @override
@@ -60,7 +73,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
                       ),
                     ),
                     child: Center(
-                      child: Text(avatar, style: const TextStyle(fontSize: 32)),
+                      child:
+                          Text(avatar, style: const TextStyle(fontSize: 32)),
                     ),
                   ),
                 );
@@ -78,8 +92,17 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             ),
             const SizedBox(height: 32),
             ElevatedButton(
-              onPressed: () => context.go('/home'),
-              child: const Text('Get Started'),
+              onPressed: _isSaving ? null : _handleComplete,
+              child: _isSaving
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text('Get Started'),
             ),
           ],
         ),

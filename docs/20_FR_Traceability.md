@@ -60,7 +60,7 @@ An FR is marked **Done** only when ALL of the following are true:
 | FR-003 | Select role during registration | P0 | SCR-004 | `users` | `PATCH /users/me` | — | ✓ Scaffolded | — | v0.2.0 | Done |
 | FR-004 | Complete profile setup | P0 | SCR-005 | `users` | `PATCH /users/me` | — | ✓ Scaffolded | — | v0.2.0 | Done |
 | FR-005 | Log out | P0 | SCR-019 | `auth` | `POST /auth/logout` | — | ✓ Scaffolded | — | v0.2.0 | Done |
-| FR-006 | Persist auth state across restarts | P0 | — | `auth` | — | — | — | — | — | In Progress |
+| FR-006 | Persist auth state across restarts | P0 | — | `auth` | `GET /users/me` | — | — | — | v0.5.0 | Done |
 
 ---
 
@@ -118,7 +118,7 @@ An FR is marked **Done** only when ALL of the following are true:
 | FR-033 | View embedded YouTube tutorial | P0 | SCR-014 | `diy` | `GET /diy/projects/{id}` | — | ✓ url_launcher | — | v0.3.0 | Done |
 | FR-034 | Save DIY projects for later | P1 | SCR-013 | `diy` | `POST /diy/saved` | — | ✓ 9 tests | — | v0.3.0 | Done |
 | FR-035 | View estimated selling price | P0 | SCR-014 | `diy` | `GET /diy/projects/{id}` | — | ✓ 9 tests | — | v0.3.0 | Done |
-| FR-036 | Share completed project to Community Feed | P1 | SCR-016 | `community` | `POST /community/posts` | — | — | — | — | Not Started |
+| FR-036 | Share completed project to Community Feed | P1 | SCR-016 | `community` | `POST /community/posts` | — | — | — | v0.5.0 | Done |
 
 ---
 
@@ -189,17 +189,17 @@ An FR is marked **Done** only when ALL of the following are true:
 
 | Module | Total FRs | P0 | P1 | Done | Progress |
 |---|---|---|---|---|---|
-| Auth | 6 | 6 | 0 | 5 | 83% |
+| Auth | 6 | 6 | 0 | 6 | 100% |
 | Core (Home) | 4 | 4 | 0 | 4 | 100% |
 | Marketplace | 12 | 12 | 0 | 12 | 100% |
 | AI Scanner | 8 | 7 | 1 | 8 | 100% |
-| DIY Studio | 6 | 4 | 2 | 5 | 83% |
+| DIY Studio | 6 | 4 | 2 | 6 | 100% |
 | Community | 8 | 7 | 1 | 8 | 100% |
 | Reports | 5 | 5 | 0 | 5 | 100% |
 | Rewards | 6 | 0 | 6 | 6 | 100% |
 | Profile | 5 | 5 | 0 | 5 | 100% |
 | Notifications | 4 | 0 | 4 | 4 | 100% |
-| **Total** | **64** | **50** | **14** | **62** | **97%** |
+| **Total** | **64** | **50** | **14** | **64** | **100%** |
 
 ---
 

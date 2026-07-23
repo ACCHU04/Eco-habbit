@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile_app/core/widgets/empty_state.dart';
 
 class DiyBrowseScreen extends StatefulWidget {
   const DiyBrowseScreen({super.key});
@@ -114,6 +115,14 @@ class _DiyBrowseScreenState extends State<DiyBrowseScreen> {
                 estimatedPrice: 150,
                 onTap: () => context.push('/diy/placeholder'),
               ),
+            ),
+          ),
+          const Expanded(
+            child: EmptyState(
+              icon: Icons.build_outlined,
+              title: 'No DIY projects yet',
+              subtitle: 'Scan an item to get project suggestions',
+              actionLabel: 'Scan Item',
             ),
           ),
         ],

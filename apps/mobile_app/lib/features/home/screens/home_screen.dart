@@ -126,6 +126,15 @@ class HomeScreen extends ConsumerWidget {
                 itemBuilder: (_, index) => const SizedBox.shrink(),
               ),
             ),
+            const SizedBox(
+              height: 120,
+              child: Center(
+                child: Text(
+                  'No listings yet. Items you save will appear here.',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ),
+            ),
 
             const SizedBox(height: 24),
           ],

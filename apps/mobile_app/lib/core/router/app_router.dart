@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile_app/features/auth/providers/auth_provider.dart';
 import 'package:mobile_app/features/auth/screens/login_screen.dart';
 import 'package:mobile_app/features/auth/screens/register_screen.dart';
 import 'package:mobile_app/features/auth/screens/role_selection_screen.dart';
@@ -23,10 +24,44 @@ import 'package:mobile_app/features/rewards/screens/notifications_screen.dart';
 import 'package:mobile_app/features/rewards/screens/rewards_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final auth = ref.watch(authProvider);
+
   return GoRouter(
     initialLocation: '/login',
+    redirect: (context, state) {
+      final authState = auth.hasValue ? auth.value! : null;
+      final loc = state.matchedLocation;
+      final isAuthRoute = loc.startsWith('/login') ||
+          loc.startsWith('/register') ||
+          loc.startsWith('/role-selection') ||
+          loc.startsWith('/profile-setup');
+
+      // Still checking token at startup — hold on splash
+      if (auth is AsyncLoading) return null;
+
+      // User action in progress — stay where they are
+      if (authState != null && auth.hasValue == false) return null;
+
+      // Check the actual auth state from the notifier
+      final notifier = ref.read(authProvider.notifier);
+      final currentAuthState = notifier.authState;
+
+      if (currentAuthState == AuthState.initial ||
+          currentAuthState == AuthState.loading) {
+        return null;
+      }
+
+      if (currentAuthState == AuthState.authenticated && isAuthRoute) {
+        return '/home';
+      }
+
+      if (currentAuthState == AuthState.unauthenticated && !isAuthRoute) {
+        return '/login';
+      }
+
+      return null;
+    },
     routes: [
-      // Auth routes
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
@@ -44,7 +79,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ProfileSetupScreen(),
       ),
 
-      // Main shell with bottom navigation
       ShellRoute(
         builder: (context, state, child) => ScaffoldWithNavBar(child: child),
         routes: [
@@ -71,7 +105,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
-      // Detail routes
       GoRoute(
         path: '/marketplace/:id',
         builder: (context, state) => const ListingDetailsScreen(),
@@ -98,7 +131,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/create-post',
-        builder: (context, state) => const CreatePostScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return CreatePostScreen(extra: extra);
+        },
       ),
       GoRoute(
         path: '/community/post/:id',
