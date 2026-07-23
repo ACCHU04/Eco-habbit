@@ -7,6 +7,9 @@ from app.services.diy_suggestions import get_suggestions_for_category
 
 router = APIRouter()
 
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+ALLOWED_TYPES = {"image/jpeg", "image/png", "image/jpg"}
+
 
 @router.post("/classify", response_model=ClassifyResponse)
 async def classify_item(
@@ -18,10 +21,25 @@ async def classify_item(
 
     try:
         if file:
+            if file.content_type not in ALLOWED_TYPES:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid file type: {file.content_type}. Allowed: JPEG, PNG",
+                )
+
             image_bytes = await file.read()
+
+            if len(image_bytes) > MAX_FILE_SIZE:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File too large: {len(image_bytes)} bytes. Max: {MAX_FILE_SIZE}",
+                )
+
             result = await classify_image_from_bytes(image_bytes)
         else:
             result = await classify_image_from_url(image_url)
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Classification failed: {str(e)}")
 

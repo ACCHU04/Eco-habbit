@@ -1,4 +1,6 @@
 import io
+import os
+import json
 import hashlib
 import redis
 import httpx
@@ -81,13 +83,11 @@ def _map_to_waste_category(imagenet_label: str) -> WasteCategory:
 
 
 async def classify_image_from_url(image_url: str) -> ClassificationResult:
-    import os
     cache = _get_redis()
     url_hash = _compute_hash(image_url.encode())
 
     cached = cache.get(f"classify:{url_hash}")
     if cached:
-        import json
         data = json.loads(cached)
         return ClassificationResult(**data)
 
@@ -100,13 +100,11 @@ async def classify_image_from_url(image_url: str) -> ClassificationResult:
 
 
 async def classify_image_from_bytes(image_bytes: bytes) -> ClassificationResult:
-    import os
     cache = _get_redis()
     img_hash = _compute_hash(image_bytes)
 
     cached = cache.get(f"classify:{img_hash}")
     if cached:
-        import json
         data = json.loads(cached)
         return ClassificationResult(**data)
 
@@ -136,7 +134,6 @@ async def _classify_bytes(
         is_uncertain=is_uncertain,
     )
 
-    import json
     cache.setex(
         f"classify:{cache_key}",
         86400,

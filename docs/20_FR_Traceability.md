@@ -98,14 +98,14 @@ An FR is marked **Done** only when ALL of the following are true:
 
 | FR | Description | Priority | Screen | NestJS Module | API Endpoint | Flutter Test | Backend Test | PR | Commit | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| FR-023 | Capture image using camera | P0 | SCR-011 | `ai` | — | — | — | — | — | In Progress |
-| FR-024 | Upload image from gallery | P0 | SCR-011 | `ai` | — | — | — | — | — | In Progress |
-| FR-025 | Classify waste material from image | P0 | SCR-012 | `ai` | `POST /ai/classify` | — | ✓ Scaffolded | — | — | In Progress |
-| FR-026 | Display classification with confidence score | P0 | SCR-012 | `ai` | `POST /ai/classify` | — | ✓ Scaffolded | — | — | In Progress |
-| FR-027 | Show disposal suggestions | P0 | SCR-012 | `ai` | `POST /ai/classify` | — | ✓ Scaffolded | — | — | In Progress |
-| FR-028 | Show DIY project suggestions | P0 | SCR-012 | `ai` | `POST /ai/diy-suggestions` | — | ✓ Scaffolded | — | — | In Progress |
-| FR-029 | Curated DIY database first, AI fallback | P0 | SCR-012 | `ai` | `POST /ai/diy-suggestions` | — | ✓ Scaffolded | — | — | In Progress |
-| FR-030 | Cache AI classification results | P1 | — | `ai` | `GET /ai/cache/{hash}` | — | ✓ Scaffolded | — | — | In Progress |
+| FR-023 | Capture image using camera | P0 | SCR-011 | `ai` | — | — | — | — | v0.3.0 | Done |
+| FR-024 | Upload image from gallery | P0 | SCR-011 | `ai` | — | — | — | — | v0.3.0 | Done |
+| FR-025 | Classify waste material from image | P0 | SCR-012 | `ai` | `POST /ai/classify` | — | ✓ Dual-cache | — | v0.3.0 | Done |
+| FR-026 | Display classification with confidence score | P0 | SCR-012 | `ai` | `POST /ai/classify` | — | ✓ Dual-cache | — | v0.3.0 | Done |
+| FR-027 | Show disposal suggestions | P0 | SCR-012 | `ai` | `POST /ai/classify` | — | ✓ Dual-cache | — | v0.3.0 | Done |
+| FR-028 | Show DIY project suggestions | P0 | SCR-012 | `ai` | `POST /ai/diy-suggestions` | — | ✓ 19 tests | — | v0.3.0 | Done |
+| FR-029 | Curated DIY database first, AI fallback | P0 | SCR-012 | `ai` | `POST /ai/diy-suggestions` | — | ✓ 19 tests | — | v0.3.0 | Done |
+| FR-030 | Cache AI classification results | P1 | — | `ai` | `GET /ai/cache/{hash}` | — | ✓ Dual-cache | — | v0.3.0 | Done |
 
 ---
 
@@ -113,11 +113,11 @@ An FR is marked **Done** only when ALL of the following are true:
 
 | FR | Description | Priority | Screen | NestJS Module | API Endpoint | Flutter Test | Backend Test | PR | Commit | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| FR-031 | Browse curated DIY projects | P0 | SCR-013 | `diy` | `GET /diy/projects` | — | — | — | — | Not Started |
-| FR-032 | View project details (materials, steps, difficulty) | P0 | SCR-014 | `diy` | `GET /diy/projects/{id}` | — | — | — | — | Not Started |
-| FR-033 | View embedded YouTube tutorial | P0 | SCR-014 | `diy` | `GET /diy/projects/{id}` | — | — | — | — | Not Started |
-| FR-034 | Save DIY projects for later | P1 | SCR-013 | `diy` | `POST /diy/saved` | — | — | — | — | Not Started |
-| FR-035 | View estimated selling price | P0 | SCR-014 | `diy` | `GET /diy/projects/{id}` | — | — | — | — | Not Started |
+| FR-031 | Browse curated DIY projects | P0 | SCR-013 | `diy` | `GET /diy/projects` | — | ✓ 9 tests | — | v0.3.0 | Done |
+| FR-032 | View project details (materials, steps, difficulty) | P0 | SCR-014 | `diy` | `GET /diy/projects/{id}` | — | ✓ 9 tests | — | v0.3.0 | Done |
+| FR-033 | View embedded YouTube tutorial | P0 | SCR-014 | `diy` | `GET /diy/projects/{id}` | — | ✓ url_launcher | — | v0.3.0 | Done |
+| FR-034 | Save DIY projects for later | P1 | SCR-013 | `diy` | `POST /diy/saved` | — | ✓ 9 tests | — | v0.3.0 | Done |
+| FR-035 | View estimated selling price | P0 | SCR-014 | `diy` | `GET /diy/projects/{id}` | — | ✓ 9 tests | — | v0.3.0 | Done |
 | FR-036 | Share completed project to Community Feed | P1 | SCR-016 | `community` | `POST /community/posts` | — | — | — | — | Not Started |
 
 ---
@@ -192,14 +192,14 @@ An FR is marked **Done** only when ALL of the following are true:
 | Auth | 6 | 6 | 0 | 5 | 83% |
 | Core (Home) | 4 | 4 | 0 | 4 | 100% |
 | Marketplace | 12 | 12 | 0 | 12 | 100% |
-| AI Scanner | 8 | 7 | 1 | 0 | 0% (scaffolded) |
-| DIY Studio | 6 | 4 | 2 | 0 | 0% |
+| AI Scanner | 8 | 7 | 1 | 8 | 100% |
+| DIY Studio | 6 | 4 | 2 | 5 | 83% |
 | Community | 8 | 7 | 1 | 0 | 0% |
 | Reports | 5 | 5 | 0 | 0 | 0% |
 | Rewards | 6 | 0 | 6 | 0 | 0% |
 | Profile | 5 | 5 | 0 | 1 | 20% |
 | Notifications | 4 | 0 | 4 | 0 | 0% |
-| **Total** | **64** | **50** | **14** | **22** | **34%** |
+| **Total** | **64** | **50** | **14** | **35** | **55%** |
 
 ---
 
