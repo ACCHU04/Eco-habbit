@@ -25,6 +25,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
           : (exceptionResponse as any).message || message;
     }
 
+    if (!(exception instanceof HttpException)) {
+      console.error('Unhandled exception:', exception);
+    }
+
     response.status(status).json({
       success: false,
       error: {

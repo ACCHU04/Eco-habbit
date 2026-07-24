@@ -36,11 +36,17 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
-    const userRecord = await this.auth.createUser({
-      email: dto.email,
-      password: dto.password,
-      displayName: dto.full_name,
-    });
+    let userRecord;
+    try {
+      userRecord = await this.auth.createUser({
+        email: dto.email,
+        password: dto.password,
+        displayName: dto.full_name,
+      });
+    } catch (fbErr) {
+      console.error('Firebase createUser error:', fbErr);
+      throw new Error(`Auth creation failed: ${(fbErr as Error).message}`);
+    }
 
     const { error } = await this.supabase.from('users').insert({
       id: userRecord.uid,
@@ -51,6 +57,7 @@ export class AuthService {
     });
 
     if (error) {
+      console.error('Supabase insert error:', error);
       throw new Error(error.message);
     }
 
