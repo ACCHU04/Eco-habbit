@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap');
 
   app.setGlobalPrefix('api/v1');
 
@@ -16,21 +17,34 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors();
+  app.enableCors({
+    origin: process.env.CORS_ORIGINS
+      ? process.env.CORS_ORIGINS.split(',')
+      : true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    credentials: true,
+  });
 
-  const config = new DocumentBuilder()
-    .setTitle('EcoHabit API')
-    .setDescription('AI-powered circular economy platform for college students')
-    .setVersion('1.0.0')
-    .addBearerAuth()
-    .build();
+  if (process.env.ENABLE_SWAGGER === 'true') {
+    const config = new DocumentBuilder()
+      .setTitle('EcoHabit API')
+      .setDescription(
+        'AI-powered circular economy platform for college students',
+      )
+      .setVersion('1.0.0')
+      .addBearerAuth()
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
+    logger.log('Swagger docs enabled at /api/docs');
+  }
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  console.log(`Application running on: http://localhost:${port}`);
-  console.log(`Swagger docs: http://localhost:${port}/api/docs`);
+
+  logger.log('Server started');
+  logger.log(`Port: ${port}`);
+  logger.log(`Environment: ${process.env.NODE_ENV ?? 'development'}`);
 }
 bootstrap();
