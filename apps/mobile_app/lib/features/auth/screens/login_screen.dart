@@ -145,9 +145,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 OutlinedButton.icon(
-                  onPressed: () {
-                    // Google Sign-In deferred to v1.0.0
-                  },
+                  onPressed: isLoading
+                      ? null
+                      : () => ref.read(authProvider.notifier).loginWithGoogle(),
                   icon: const Icon(Icons.g_mobiledata, size: 24),
                   label: const Text('Continue with Google'),
                 ),

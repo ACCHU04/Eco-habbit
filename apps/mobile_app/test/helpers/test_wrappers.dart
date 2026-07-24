@@ -52,6 +52,19 @@ class FakeAuthNotifier extends StateNotifier<AsyncValue<AuthData>>
   }
 
   @override
+  Future<void> loginWithGoogle() async {
+    loginCalled = true;
+    state = const AsyncValue.loading();
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+    if (shouldFail) {
+      state =
+          const AsyncValue.data(AuthData(errorMessage: 'Invalid Google token'));
+    } else {
+      state = const AsyncValue.data(AuthData(user: testUser));
+    }
+  }
+
+  @override
   Future<void> register({
     required String email,
     required String password,

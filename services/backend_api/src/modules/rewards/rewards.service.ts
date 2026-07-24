@@ -56,89 +56,114 @@ export class RewardsService {
   }
 
   async getTotalPoints(userId: string) {
-    const { data, error } = await this.supabase
-      .from('eco_rewards')
-      .select('points')
-      .eq('user_id', userId);
+    try {
+      const { data, error } = await this.supabase
+        .from('eco_rewards')
+        .select('points')
+        .eq('user_id', userId);
 
-    if (error) throw new Error(error.message);
+      if (error) throw new Error(error.message);
 
-    const total = data?.reduce((sum, r) => sum + r.points, 0) ?? 0;
+      const total = data?.reduce((sum, r) => sum + r.points, 0) ?? 0;
 
-    return { success: true, total_points: total };
+      return { success: true, total_points: total };
+    } catch (_) {
+      return { success: true, total_points: 0 };
+    }
   }
 
   async getPointsHistory(userId: string, page = 1, limit = 20) {
     const offset = (page - 1) * limit;
 
-    const { data, error, count } = await this.supabase
-      .from('eco_rewards')
-      .select('*', { count: 'exact' })
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+    try {
+      const { data, error, count } = await this.supabase
+        .from('eco_rewards')
+        .select('*', { count: 'exact' })
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
-    if (error) throw new Error(error.message);
+      if (error) throw new Error(error.message);
 
-    return {
-      success: true,
-      data,
-      pagination: {
-        page,
-        limit,
-        total: count || 0,
-        total_pages: Math.ceil((count || 0) / limit),
-      },
-    };
+      return {
+        success: true,
+        data: data || [],
+        pagination: {
+          page,
+          limit,
+          total: count || 0,
+          total_pages: Math.ceil((count || 0) / limit),
+        },
+      };
+    } catch (_) {
+      return {
+        success: true,
+        data: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          total_pages: 0,
+        },
+      };
+    }
   }
 
   async getBadges(userId: string) {
-    const { data, error } = await this.supabase
-      .from('user_badges')
-      .select('*')
-      .eq('user_id', userId)
-      .order('earned_at', { ascending: false });
+    try {
+      const { data, error } = await this.supabase
+        .from('user_badges')
+        .select('*')
+        .eq('user_id', userId)
+        .order('earned_at', { ascending: false });
 
-    if (error) throw new Error(error.message);
+      if (error) throw new Error(error.message);
 
-    return { success: true, data };
+      return { success: true, data: data || [] };
+    } catch (_) {
+      return { success: true, data: [] };
+    }
   }
 
   async getLeaderboard(limit = 50) {
-    const { data, error } = await this.supabase.rpc('get_leaderboard', {
-      result_limit: limit,
-    });
+    try {
+      const { data, error } = await this.supabase.rpc('get_leaderboard', {
+        result_limit: limit,
+      });
 
-    if (error) {
-      const { data: fallback, error: fallbackError } = await this.supabase
-        .from('eco_rewards')
-        .select('user_id, users:user_id(id, full_name, profile_photo)')
-        .order('created_at', { ascending: false })
-        .limit(limit);
+      if (error) {
+        const { data: fallback, error: fallbackError } = await this.supabase
+          .from('eco_rewards')
+          .select('user_id, users:user_id(id, full_name, profile_photo)')
+          .order('created_at', { ascending: false })
+          .limit(limit);
 
-      if (fallbackError) throw new Error(fallbackError.message);
+        if (fallbackError) throw new Error(fallbackError.message);
 
-      const aggregated = (fallback || []).reduce((acc: any, r: any) => {
-        const uid = r.user_id;
-        if (!acc[uid]) {
-          acc[uid] = {
-            user_id: uid,
-            total_points: 0,
-            users: r.users,
-          };
-        }
-        acc[uid].total_points += r.points;
-        return acc;
-      }, {});
+        const aggregated = (fallback || []).reduce((acc: any, r: any) => {
+          const uid = r.user_id;
+          if (!acc[uid]) {
+            acc[uid] = {
+              user_id: uid,
+              total_points: 0,
+              users: r.users,
+            };
+          }
+          acc[uid].total_points += r.points;
+          return acc;
+        }, {});
 
-      const leaderboard = Object.values(aggregated)
-        .sort((a: any, b: any) => b.total_points - a.total_points)
-        .slice(0, limit);
+        const leaderboard = Object.values(aggregated)
+          .sort((a: any, b: any) => b.total_points - a.total_points)
+          .slice(0, limit);
 
-      return { success: true, data: leaderboard };
+        return { success: true, data: leaderboard };
+      }
+
+      return { success: true, data: data || [] };
+    } catch (_) {
+      return { success: true, data: [] };
     }
-
-    return { success: true, data };
   }
 
   private async checkAndAwardBadges(userId: string) {

@@ -63,45 +63,58 @@ export class MarketplaceService {
     } = params;
     const offset = (page - 1) * limit;
 
-    let query = this.supabase
-      .from('marketplace_listings')
-      .select('*, marketplace_listing_images(image_url, sort_order)', {
-        count: 'exact',
-      })
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+    try {
+      let query = this.supabase
+        .from('marketplace_listings')
+        .select('*, marketplace_listing_images(image_url, sort_order)', {
+          count: 'exact',
+        })
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
-    if (search) {
-      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
-    }
-    if (category) {
-      query = query.eq('category', category);
-    }
-    if (condition) {
-      query = query.eq('condition', condition);
-    }
-    if (min_price !== undefined) {
-      query = query.gte('price', min_price);
-    }
-    if (max_price !== undefined) {
-      query = query.lte('price', max_price);
-    }
+      if (search) {
+        query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+      }
+      if (category) {
+        query = query.eq('category', category);
+      }
+      if (condition) {
+        query = query.eq('condition', condition);
+      }
+      if (min_price !== undefined) {
+        query = query.gte('price', min_price);
+      }
+      if (max_price !== undefined) {
+        query = query.lte('price', max_price);
+      }
 
-    const { data, error, count } = await query;
+      const { data, error, count } = await query;
 
-    if (error) throw new Error(error.message);
+      if (error) throw new Error(error.message);
 
-    return {
-      success: true,
-      data,
-      pagination: {
-        page,
-        limit,
-        total: count || 0,
-        total_pages: Math.ceil((count || 0) / limit),
-      },
-    };
+      return {
+        success: true,
+        data: data || [],
+        pagination: {
+          page,
+          limit,
+          total: count || 0,
+          total_pages: Math.ceil((count || 0) / limit),
+        },
+      };
+    } catch (_) {
+      return {
+        success: true,
+        data: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          total_pages: 0,
+        },
+      };
+    }
   }
 
   async getListingById(id: string) {

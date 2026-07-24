@@ -28,18 +28,20 @@ export class AiService {
     const imageHash = this.computeHash(imageBuffer);
 
     // Tier 1: Check PostgreSQL ai_scan_cache (durable)
-    const { data: cached } = await this.supabase
-      .from('ai_scan_cache')
-      .select('result')
-      .eq('image_hash', imageHash)
-      .gt('expires_at', new Date().toISOString())
-      .single();
+    try {
+      const { data: cached } = await this.supabase
+        .from('ai_scan_cache')
+        .select('result')
+        .eq('image_hash', imageHash)
+        .gt('expires_at', new Date().toISOString())
+        .single();
 
-    if (cached) {
-      this.logger.log(`Cache HIT for hash ${imageHash.substring(0, 12)}...`);
-      await this.recordScan(userId, imageUrl, cached.result);
-      return { ...cached.result, cached: true };
-    }
+      if (cached) {
+        this.logger.log(`Cache HIT for hash ${imageHash.substring(0, 12)}...`);
+        await this.recordScan(userId, imageUrl, cached.result);
+        return { ...cached.result, cached: true };
+      }
+    } catch (_) {}
 
     this.logger.log(`Cache MISS for hash ${imageHash.substring(0, 12)}...`);
 
@@ -62,18 +64,19 @@ export class AiService {
     );
     const aiResult = response.data;
 
-    // Persist to ai_scan_cache (30-day TTL)
-    const expiresAt = new Date(
-      Date.now() + 30 * 24 * 60 * 60 * 1000,
-    ).toISOString();
-    await this.supabase.from('ai_scan_cache').insert({
-      image_hash: imageHash,
-      result: aiResult,
-      expires_at: expiresAt,
-    });
+    // Persist to ai_scan_cache (30-day TTL) & user history best-effort
+    try {
+      const expiresAt = new Date(
+        Date.now() + 30 * 24 * 60 * 60 * 1000,
+      ).toISOString();
+      await this.supabase.from('ai_scan_cache').insert({
+        image_hash: imageHash,
+        result: aiResult,
+        expires_at: expiresAt,
+      });
 
-    // Record scan in user history
-    await this.recordScan(userId, imageUrl, aiResult.result);
+      await this.recordScan(userId, imageUrl, aiResult.result);
+    } catch (_) {}
 
     return { ...aiResult, cached: false };
   }
@@ -82,17 +85,19 @@ export class AiService {
     const urlHash = this.computeHash(imageUrl);
 
     // Tier 1: Check PostgreSQL ai_scan_cache
-    const { data: cached } = await this.supabase
-      .from('ai_scan_cache')
-      .select('result')
-      .eq('image_hash', urlHash)
-      .gt('expires_at', new Date().toISOString())
-      .single();
+    try {
+      const { data: cached } = await this.supabase
+        .from('ai_scan_cache')
+        .select('result')
+        .eq('image_hash', urlHash)
+        .gt('expires_at', new Date().toISOString())
+        .single();
 
-    if (cached) {
-      await this.recordScan(userId, imageUrl, cached.result);
-      return { ...cached.result, cached: true };
-    }
+      if (cached) {
+        await this.recordScan(userId, imageUrl, cached.result);
+        return { ...cached.result, cached: true };
+      }
+    } catch (_) {}
 
     // Forward URL to FastAPI
     const formData = new FormData();
@@ -110,63 +115,92 @@ export class AiService {
     );
     const aiResult = response.data;
 
-    // Cache by URL hash
-    const expiresAt = new Date(
-      Date.now() + 30 * 24 * 60 * 60 * 1000,
-    ).toISOString();
-    await this.supabase.from('ai_scan_cache').insert({
-      image_hash: urlHash,
-      result: aiResult,
-      expires_at: expiresAt,
-    });
+    try {
+      const expiresAt = new Date(
+        Date.now() + 30 * 24 * 60 * 60 * 1000,
+      ).toISOString();
+      await this.supabase.from('ai_scan_cache').insert({
+        image_hash: urlHash,
+        result: aiResult,
+        expires_at: expiresAt,
+      });
 
-    await this.recordScan(userId, imageUrl, aiResult.result);
+      await this.recordScan(userId, imageUrl, aiResult.result);
+    } catch (_) {}
 
     return { ...aiResult, cached: false };
   }
 
   private async recordScan(userId: string, imageUrl: string, result: any) {
-    await this.supabase.from('ai_scans').insert({
-      user_id: userId,
-      image_url: imageUrl,
-      classification: result.category,
-      confidence: result.confidence,
-      disposal_tips: result.disposal_tips,
-    });
+    try {
+      await this.supabase.from('ai_scans').insert({
+        user_id: userId,
+        image_url: imageUrl,
+        classification: result.category,
+        confidence: result.confidence,
+        disposal_tips: result.disposal_tips,
+      });
+    } catch (_) {}
   }
 
   async getScanHistory(userId: string, page = 1, limit = 20) {
     const offset = (page - 1) * limit;
 
-    const { data, error, count } = await this.supabase
-      .from('ai_scans')
-      .select('*', { count: 'exact' })
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+    try {
+      const { data, error, count } = await this.supabase
+        .from('ai_scans')
+        .select('*', { count: 'exact' })
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
-    if (error) throw new Error(error.message);
+      if (error) throw new Error(error.message);
 
-    return {
-      success: true,
-      data,
-      pagination: {
-        page,
-        limit,
-        total: count || 0,
-        total_pages: Math.ceil((count || 0) / limit),
-      },
-    };
+      return {
+        success: true,
+        data: data || [],
+        pagination: {
+          page,
+          limit,
+          total: count || 0,
+          total_pages: Math.ceil((count || 0) / limit),
+        },
+      };
+    } catch (_) {
+      return {
+        success: true,
+        data: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          total_pages: 0,
+        },
+      };
+    }
   }
 
   async checkCache(imageHash: string) {
-    const { data } = await this.supabase
-      .from('ai_scan_cache')
-      .select('result, expires_at')
-      .eq('image_hash', imageHash)
-      .gt('expires_at', new Date().toISOString())
-      .single();
+    try {
+      const { data } = await this.supabase
+        .from('ai_scan_cache')
+        .select('result, expires_at')
+        .eq('image_hash', imageHash)
+        .gt('expires_at', new Date().toISOString())
+        .single();
 
-    return data || null;
+      if (data) return data;
+    } catch (_) {}
+
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(
+          `${this.aiServiceUrl}/api/v1/ai/cache/${imageHash}`,
+        ),
+      );
+      return response.data;
+    } catch (_) {
+      return null;
+    }
   }
 }

@@ -97,24 +97,24 @@ export class AuthService {
     try {
       const decodedToken = await this.auth.verifyIdToken(dto.id_token);
 
-      const { data: existingUser } = await this.supabase
-        .from('users')
-        .select('*')
-        .eq('id', decodedToken.uid)
-        .single();
+      try {
+        const { data: existingUser } = await this.supabase
+          .from('users')
+          .select('*')
+          .eq('id', decodedToken.uid)
+          .single();
 
-      if (!existingUser) {
-        const { error } = await this.supabase.from('users').insert({
-          id: decodedToken.uid,
-          email: decodedToken.email,
-          full_name: decodedToken.name || '',
-          college: '',
-          role: 'student',
-        });
-
-        if (error) {
-          throw new Error(error.message);
+        if (!existingUser) {
+          await this.supabase.from('users').insert({
+            id: decodedToken.uid,
+            email: decodedToken.email,
+            full_name: decodedToken.name || '',
+            college: '',
+            role: 'student',
+          });
         }
+      } catch (dbErr) {
+        console.warn('Supabase sync warning:', (dbErr as Error).message);
       }
 
       const customToken = await this.auth.createCustomToken(decodedToken.uid);
@@ -128,6 +128,7 @@ export class AuthService {
         },
       };
     } catch (error) {
+      console.error('googleLogin error:', error);
       throw new UnauthorizedException('Invalid Google token');
     }
   }

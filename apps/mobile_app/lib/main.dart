@@ -27,6 +27,9 @@ void main() async {
         storageServiceProvider.overrideWithValue(storage),
         apiClientProvider.overrideWithValue(apiClient),
         authRepositoryProvider.overrideWithValue(authRepository),
+        authProvider.overrideWith(
+          (ref) => AuthNotifier(authRepository, storage, ref),
+        ),
       ],
       child: const EcoHabitApp(),
     ),

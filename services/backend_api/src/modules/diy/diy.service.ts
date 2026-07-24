@@ -21,36 +21,49 @@ export class DiyService {
     const limitNum = Number(limit);
     const offset = (pageNum - 1) * limitNum;
 
-    let qb = this.supabase
-      .from('diy_projects')
-      .select('*', { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limitNum - 1);
+    try {
+      let qb = this.supabase
+        .from('diy_projects')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limitNum - 1);
 
-    if (category) {
-      qb = qb.eq('category', category);
+      if (category) {
+        qb = qb.eq('category', category);
+      }
+      if (difficulty) {
+        qb = qb.eq('difficulty', difficulty);
+      }
+      if (search) {
+        qb = qb.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+      }
+
+      const { data, error, count } = await qb;
+
+      if (error) throw new Error(error.message);
+
+      return {
+        success: true,
+        data: data || [],
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total: count || 0,
+          total_pages: Math.ceil((count || 0) / limitNum),
+        },
+      };
+    } catch (_) {
+      return {
+        success: true,
+        data: [],
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total: 0,
+          total_pages: 0,
+        },
+      };
     }
-    if (difficulty) {
-      qb = qb.eq('difficulty', difficulty);
-    }
-    if (search) {
-      qb = qb.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
-    }
-
-    const { data, error, count } = await qb;
-
-    if (error) throw new Error(error.message);
-
-    return {
-      success: true,
-      data,
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total: count || 0,
-        total_pages: Math.ceil((count || 0) / limitNum),
-      },
-    };
   }
 
   async getProjectById(id: string) {

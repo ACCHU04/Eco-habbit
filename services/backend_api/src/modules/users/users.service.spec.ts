@@ -41,12 +41,15 @@ describe('UsersService', () => {
       expect(s.from).toHaveBeenCalledWith('users');
     });
 
-    it('throws when user is not found', async () => {
+    it('returns fallback user when not found', async () => {
       s.single.mockResolvedValue({ data: null, error: { message: 'not found' } });
 
-      await expect(service.getProfile('nonexistent')).rejects.toThrow(
-        'User not found',
-      );
+      const result = await service.getProfile('nonexistent');
+
+      expect(result.success).toBe(true);
+      expect(result.data.id).toBe('nonexistent');
+      expect(result.data.full_name).toBe('EcoHabit Student');
+      expect(result.data.role).toBe('student');
     });
   });
 

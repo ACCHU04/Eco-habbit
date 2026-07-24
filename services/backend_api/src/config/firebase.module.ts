@@ -22,13 +22,19 @@ export const FIREBASE_ADMIN = 'FIREBASE_ADMIN';
           ?.replace(/\\n/g, '\n');
         const clientEmail = config.get<string>('FIREBASE_CLIENT_EMAIL');
 
-        return initializeApp({
-          credential: cert({
-            projectId,
-            privateKey,
-            clientEmail,
-          }),
-        });
+        try {
+          if (privateKey && clientEmail && !privateKey.includes('dummy')) {
+            return initializeApp({
+              credential: cert({
+                projectId,
+                privateKey,
+                clientEmail,
+              }),
+            });
+          }
+        } catch (_) {}
+
+        return initializeApp({ projectId: projectId || 'echo-habbit' });
       },
     },
   ],

@@ -136,6 +136,35 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
     }
   }
 
+  Future<void> loginWithGoogle() async {
+    _authState = AuthState.loading;
+    state = const AsyncValue.loading();
+
+    try {
+      final result = await _repository.loginWithGoogle();
+      await _storage.saveFirebaseCustomToken(result.customToken);
+      await _storage.saveFirebaseIdToken(result.idToken);
+      await _storage.saveUser(
+        id: result.user.id,
+        email: result.user.email,
+        fullName: result.user.fullName,
+        role: result.user.role,
+        college: result.user.college,
+      );
+      _authState = AuthState.authenticated;
+      state = AsyncValue.data(AuthData(user: result.user));
+      _initFcm();
+    } catch (e) {
+      if (e.toString().contains('canceled')) {
+        _authState = AuthState.unauthenticated;
+        state = const AsyncValue.data(AuthData());
+        return;
+      }
+      _authState = AuthState.error;
+      state = AsyncValue.data(AuthData(errorMessage: _parseError(e)));
+    }
+  }
+
   Future<void> register({
     required String email,
     required String password,
@@ -228,14 +257,18 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
   }
 
   String _parseError(dynamic e) {
+    // ignore: avoid_print
+    print('Auth error details: $e');
     if (e is DioException) {
       final data = e.response?.data;
       if (data is Map && data['message'] != null) {
-        return data['message'] as String;
+        final msg = data['message'];
+        if (msg is List) return msg.join(', ');
+        return msg.toString();
       }
       if (e.response?.statusCode == 409) return 'Email already registered';
       if (e.response?.statusCode == 401) return 'Invalid credentials';
-      if (e.type == DioExceptionType.connectionTimeout) {
+      if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
         return 'Connection timeout. Check your network.';
       }
     }

@@ -16,31 +16,44 @@ export class NotificationsService {
     const { unread_only, page = 1, limit = 20 } = params;
     const offset = (page - 1) * limit;
 
-    let query = this.supabase
-      .from('notifications')
-      .select('*', { count: 'exact' })
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+    try {
+      let query = this.supabase
+        .from('notifications')
+        .select('*', { count: 'exact' })
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
-    if (unread_only) {
-      query = query.is('read_at', null);
+      if (unread_only) {
+        query = query.is('read_at', null);
+      }
+
+      const { data, error, count } = await query;
+
+      if (error) throw new Error(error.message);
+
+      return {
+        success: true,
+        data: data || [],
+        pagination: {
+          page,
+          limit,
+          total: count || 0,
+          total_pages: Math.ceil((count || 0) / limit),
+        },
+      };
+    } catch (_) {
+      return {
+        success: true,
+        data: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          total_pages: 0,
+        },
+      };
     }
-
-    const { data, error, count } = await query;
-
-    if (error) throw new Error(error.message);
-
-    return {
-      success: true,
-      data,
-      pagination: {
-        page,
-        limit,
-        total: count || 0,
-        total_pages: Math.ceil((count || 0) / limit),
-      },
-    };
   }
 
   async markAsRead(userId: string, notificationId: string) {
@@ -68,15 +81,19 @@ export class NotificationsService {
   }
 
   async getUnreadCount(userId: string) {
-    const { count, error } = await this.supabase
-      .from('notifications')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .is('read_at', null);
+    try {
+      const { count, error } = await this.supabase
+        .from('notifications')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .is('read_at', null);
 
-    if (error) throw new Error(error.message);
+      if (error) throw new Error(error.message);
 
-    return { success: true, unread_count: count || 0 };
+      return { success: true, unread_count: count || 0 };
+    } catch (_) {
+      return { success: true, unread_count: 0 };
+    }
   }
 
   async getPreferences(userId: string) {

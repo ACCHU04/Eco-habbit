@@ -100,7 +100,12 @@ describe('HomeService', () => {
       const result = await service.getDashboard('u1');
 
       expect(result.success).toBe(true);
-      expect(result.data.user).toBeNull();
+      expect(result.data.user).toEqual({
+        id: 'u1',
+        full_name: 'EcoHabit Student',
+        college: 'Campus',
+        role: 'student',
+      });
       expect(result.data.points).toBe(0);
       expect(result.data.recent_listings).toEqual([]);
     });

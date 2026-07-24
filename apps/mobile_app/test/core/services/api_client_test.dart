@@ -25,12 +25,12 @@ void main() {
       expect(client.dio.options.baseUrl, AppConfig.apiBaseUrl);
     });
 
-    test('sets connect timeout to 10 seconds', () {
-      expect(client.dio.options.connectTimeout, const Duration(seconds: 10));
+    test('sets connect timeout to 30 seconds', () {
+      expect(client.dio.options.connectTimeout, const Duration(seconds: 30));
     });
 
-    test('sets receive timeout to 10 seconds', () {
-      expect(client.dio.options.receiveTimeout, const Duration(seconds: 10));
+    test('sets receive timeout to 30 seconds', () {
+      expect(client.dio.options.receiveTimeout, const Duration(seconds: 30));
     });
 
     test('sets Content-Type header', () {

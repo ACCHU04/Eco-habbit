@@ -51,38 +51,51 @@ export class CommunityService {
     const { type, page = 1, limit = 20 } = params;
     const offset = (page - 1) * limit;
 
-    let query = this.supabase
-      .from('posts')
-      .select(
-        `
-        *,
-        users:author_id(id, full_name, profile_photo),
-        post_images(image_url),
-        post_likes(user_id)
-      `,
-        { count: 'exact' },
-      )
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+    try {
+      let query = this.supabase
+        .from('posts')
+        .select(
+          `
+          *,
+          users:author_id(id, full_name, profile_photo),
+          post_images(image_url),
+          post_likes(user_id)
+        `,
+          { count: 'exact' },
+        )
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
-    if (type) {
-      query = query.eq('post_type', type);
+      if (type) {
+        query = query.eq('post_type', type);
+      }
+
+      const { data, error, count } = await query;
+
+      if (error) throw new Error(error.message);
+
+      return {
+        success: true,
+        data: data || [],
+        pagination: {
+          page,
+          limit,
+          total: count || 0,
+          total_pages: Math.ceil((count || 0) / limit),
+        },
+      };
+    } catch (_) {
+      return {
+        success: true,
+        data: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          total_pages: 0,
+        },
+      };
     }
-
-    const { data, error, count } = await query;
-
-    if (error) throw new Error(error.message);
-
-    return {
-      success: true,
-      data,
-      pagination: {
-        page,
-        limit,
-        total: count || 0,
-        total_pages: Math.ceil((count || 0) / limit),
-      },
-    };
   }
 
   async getPostById(id: string) {

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile_app/core/services/api_client.dart';
 import 'package:mobile_app/features/auth/models/user_model.dart';
 
@@ -63,6 +64,41 @@ class AuthRepository {
         id: data['uid'] as String,
         email: data['email'] as String,
         fullName: data['full_name'] as String? ?? '',
+      ),
+    );
+  }
+
+  Future<AuthResult> loginWithGoogle() async {
+    final googleSignIn = GoogleSignIn();
+    final googleUser = await googleSignIn.signIn();
+    if (googleUser == null) {
+      throw Exception('Google Sign-In canceled');
+    }
+
+    final googleAuth = await googleUser.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final firebaseUserCredential =
+        await FirebaseAuth.instance.signInWithCredential(credential);
+    final idToken = await firebaseUserCredential.user!.getIdToken();
+
+    final response = await _api.post('/auth/google', data: {
+      'id_token': idToken,
+    });
+
+    final data = response.data['data'];
+    final customToken = data['custom_token'] as String;
+
+    return AuthResult(
+      customToken: customToken,
+      idToken: idToken!,
+      user: UserModel(
+        id: data['uid'] as String,
+        email: data['email'] as String,
+        fullName: googleUser.displayName ?? '',
       ),
     );
   }
