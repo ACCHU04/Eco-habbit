@@ -11,29 +11,84 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
-  final storage = StorageService();
-  await storage.init();
+  String? initError;
 
-  final apiClient = ApiClient(storage);
-  final authRepository = AuthRepository(apiClient);
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e, st) {
+    debugPrint('Firebase initialization failed: $e');
+    debugPrintStack(stackTrace: st);
+    initError = 'Firebase init failed: $e';
+  }
 
-  runApp(
-    ProviderScope(
-      overrides: [
-        storageServiceProvider.overrideWithValue(storage),
-        apiClientProvider.overrideWithValue(apiClient),
-        authRepositoryProvider.overrideWithValue(authRepository),
-        authProvider.overrideWith(
-          (ref) => AuthNotifier(authRepository, storage, ref),
+  if (initError != null) {
+    runApp(_InitErrorApp(error: initError));
+    return;
+  }
+
+  try {
+    final storage = StorageService();
+    await storage.init();
+
+    final apiClient = ApiClient(storage);
+    final authRepository = AuthRepository(apiClient);
+
+    runApp(
+      ProviderScope(
+        overrides: [
+          storageServiceProvider.overrideWithValue(storage),
+          apiClientProvider.overrideWithValue(apiClient),
+          authRepositoryProvider.overrideWithValue(authRepository),
+          authProvider.overrideWith(
+            (ref) => AuthNotifier(authRepository, storage, ref),
+          ),
+        ],
+        child: const EcoHabitApp(),
+      ),
+    );
+  } catch (e, st) {
+    debugPrint('App initialization failed: $e');
+    debugPrintStack(stackTrace: st);
+    runApp(_InitErrorApp(error: 'App init failed: $e'));
+  }
+}
+
+class _InitErrorApp extends StatelessWidget {
+  final String error;
+  const _InitErrorApp({required this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red, size: 64),
+                const SizedBox(height: 16),
+                const Text(
+                  'Failed to initialize',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  error,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
         ),
-      ],
-      child: const EcoHabitApp(),
-    ),
-  );
+      ),
+    );
+  }
 }
 
 class EcoHabitApp extends ConsumerWidget {
