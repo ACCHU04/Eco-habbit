@@ -36,7 +36,7 @@ void main() {
   }) {
     return PaginatedPosts(
       posts: posts ?? [Post(
-        id: '1', content: 'Hello', postType: 'tip',
+        id: '1', content: 'Hello', postType: PostType.tip,
         likesCount: 5, commentsCount: 2, createdAt: DateTime(2026),
         author: const PostAuthor(id: 'u1', fullName: 'Test User'),
         imageUrls: [], isLiked: false, comments: [],
@@ -74,7 +74,7 @@ void main() {
     test('loads more pages', () async {
       final page1 = mockPaginatedPosts(
         posts: [Post(
-          id: '1', content: 'Post 1', postType: 'tip',
+          id: '1', content: 'Post 1', postType: PostType.tip,
           likesCount: 0, commentsCount: 0, createdAt: DateTime(2026),
           author: const PostAuthor(id: 'u1', fullName: 'User 1'),
           imageUrls: [], isLiked: false, comments: [],
@@ -83,7 +83,7 @@ void main() {
       );
       final page2 = mockPaginatedPosts(
         posts: [Post(
-          id: '2', content: 'Post 2', postType: 'diy',
+          id: '2', content: 'Post 2', postType: PostType.diy,
           likesCount: 0, commentsCount: 0, createdAt: DateTime(2026),
           author: const PostAuthor(id: 'u2', fullName: 'User 2'),
           imageUrls: [], isLiked: false, comments: [],
@@ -118,7 +118,7 @@ void main() {
   group('PostDetailNotifier', () {
     test('loads post with comments', () async {
       final post = Post(
-        id: 'p1', content: 'Detail post', postType: 'diy',
+        id: 'p1', content: 'Detail post', postType: PostType.diy,
         likesCount: 10, commentsCount: 2, createdAt: DateTime(2026),
         author: const PostAuthor(id: 'u1', fullName: 'Author'),
         imageUrls: [], isLiked: true,
@@ -149,7 +149,7 @@ void main() {
   group('Optimistic like', () {
     test('toggles like optimistically and rolls back on failure', () async {
       final post = Post(
-        id: 'p1', content: 'Test', postType: 'tip',
+        id: 'p1', content: 'Test', postType: PostType.tip,
         likesCount: 5, commentsCount: 0, createdAt: DateTime(2026),
         author: const PostAuthor(id: 'u1', fullName: 'User'),
         imageUrls: [], isLiked: false, comments: [],
@@ -211,14 +211,14 @@ void main() {
   group('Create post', () {
     test('createPost calls repository and returns post', () async {
       when(mockRepo.createPost(any)).thenAnswer((_) async => Post(
-        id: 'new-1', content: 'My tip', postType: 'tip',
+        id: 'new-1', content: 'My tip', postType: PostType.tip,
         likesCount: 0, commentsCount: 0, createdAt: DateTime(2026),
         author: const PostAuthor(id: 'u1', fullName: 'User'),
         imageUrls: [], isLiked: false, comments: [],
       ));
 
       final result = await mockRepo.createPost(const CreatePostRequest(
-        postType: 'tip', content: 'My tip',
+        postType: PostType.tip, content: 'My tip',
       ));
 
       expect(result.id, 'new-1');

@@ -24,7 +24,7 @@ void main() {
 
       expect(post.id, 'p1');
       expect(post.content, 'Hello world');
-      expect(post.postType, 'tip');
+      expect(post.postType, PostType.tip);
       expect(post.likesCount, 10);
       expect(post.commentsCount, 3);
       expect(post.author.id, 'u1');
@@ -72,7 +72,7 @@ void main() {
   group('Post.copyWith', () {
     test('creates modified copy', () {
       final original = Post(
-        id: 'p1', content: 'Original', postType: 'tip',
+        id: 'p1', content: 'Original', postType: PostType.tip,
         likesCount: 5, commentsCount: 2, createdAt: DateTime(2026),
         author: const PostAuthor(id: 'u1', fullName: 'User'),
         imageUrls: [], isLiked: false, comments: [],
@@ -124,7 +124,7 @@ void main() {
 
   group('CreatePostRequest', () {
     test('toJson omits null fields', () {
-      const request = CreatePostRequest(postType: 'tip', content: 'Hello');
+      const request = CreatePostRequest(postType: PostType.tip, content: 'Hello');
       final json = request.toJson();
 
       expect(json['post_type'], 'tip');
@@ -135,7 +135,7 @@ void main() {
 
     test('toJson includes optional fields when set', () {
       const request = CreatePostRequest(
-        postType: 'diy', content: 'Project',
+        postType: PostType.diy, content: 'Project',
         diyProjectId: 'proj-1',
       );
       final json = request.toJson();

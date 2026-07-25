@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/theme/app_theme.dart';
+import 'package:mobile_app/core/theme/colors.dart';
+import 'package:mobile_app/core/utils/time_ago.dart';
+import 'package:mobile_app/core/widgets/eco_post_card.dart' show EcoPostCard;
 import 'package:mobile_app/core/widgets/empty_state.dart';
 import 'package:mobile_app/features/community/models/post.dart';
 import 'package:mobile_app/features/community/models/community_filter.dart';
@@ -20,12 +23,14 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ScrollController _scrollController = ScrollController();
+  final Set<String> _bookmarkedIds = {};
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _scrollController.addListener(_onScroll);
+    _loadBookmarks();
   }
 
   @override
@@ -41,6 +46,19 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen>
     }
   }
 
+  Future<void> _loadBookmarks() async {
+    try {
+      final result = await ref.read(communityRepositoryProvider).getBookmarks();
+      if (mounted) {
+        setState(() {
+          for (final post in result.posts) {
+            _bookmarkedIds.add(post.id);
+          }
+        });
+      }
+    } catch (_) {}
+  }
+
   @override
   Widget build(BuildContext context) {
     final feedAsync = ref.watch(communityFeedProvider);
@@ -50,6 +68,10 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen>
       appBar: AppBar(
         title: const Text('Community'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () => context.push('/community/search'),
+          ),
           NotificationsBadge(
             child: IconButton(
               icon: const Icon(Icons.notifications_outlined),
@@ -74,7 +96,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen>
                 const SizedBox(width: 8),
                 _FilterChip(
                   label: 'DIY',
-                  selected: currentFilter.postType == 'diy',
+                  selected: currentFilter.postType == PostType.diy.value,
                   onTap: () {
                     ref.read(communityFilterProvider.notifier).state = const CommunityFilter(postType: 'diy');
                   },
@@ -83,7 +105,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen>
                 const SizedBox(width: 8),
                 _FilterChip(
                   label: 'Tips',
-                  selected: currentFilter.postType == 'tip',
+                  selected: currentFilter.postType == PostType.tip.value,
                   onTap: () {
                     ref.read(communityFilterProvider.notifier).state = const CommunityFilter(postType: 'tip');
                   },
@@ -92,7 +114,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen>
                 const SizedBox(width: 8),
                 _FilterChip(
                   label: 'Market',
-                  selected: currentFilter.postType == 'marketplace',
+                  selected: currentFilter.postType == PostType.marketplace.value,
                   onTap: () {
                     ref.read(communityFilterProvider.notifier).state = const CommunityFilter(postType: 'marketplace');
                   },
@@ -103,7 +125,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen>
           ),
           Expanded(
             child: feedAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => _buildSkeletonList(),
               error: (e, _) => Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -126,25 +148,41 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen>
                     actionLabel: 'Create Post',
                   );
                 }
-                return ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(16),
-                  itemCount: paginated.posts.length + (paginated.hasMore ? 1 : 0),
-                  itemBuilder: (context, index) {
-              if (index == paginated.posts.length) {
-                  return const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                    }
-                    final post = paginated.posts[index];
-                    return _PostCard(
-                      post: post,
-                      onTap: () => context.push('/community/post/${post.id}'),
-                      onLike: () => _toggleLike(post),
-                      onReport: () => _showReportDialog(context, post),
-                    );
-                  },
+                return RefreshIndicator(
+                  onRefresh: () async => ref.invalidate(communityFeedProvider),
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: paginated.posts.length + (paginated.hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == paginated.posts.length) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      final post = paginated.posts[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: EcoPostCard(
+                          authorName: post.author.fullName,
+                          authorAvatarUrl: post.author.profilePhoto,
+                          content: post.content,
+                          postType: post.postType,
+                          likes: post.likesCount,
+                          comments: post.commentsCount,
+                          timeAgo: timeAgo(post.createdAt),
+                          isLiked: post.isLiked,
+                          isBookmarked: _bookmarkedIds.contains(post.id),
+                          imageUrls: post.imageUrls,
+                          onTap: () => context.push('/community/post/${post.id}'),
+                          onLike: () => _toggleLike(post),
+                          onBookmark: () => _toggleBookmark(post.id),
+                          onLongPress: () => _showReportDialog(context, post),
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
             ),
@@ -158,29 +196,82 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen>
     );
   }
 
-  void _toggleLike(Post post) async {
-    final repo = ref.read(communityRepositoryProvider);
-    final previousIsLiked = post.isLiked;
-    final previousLikesCount = post.likesCount;
-
-    ref.read(communityFeedProvider.notifier).toggleLike(
-      post.id,
-      isCurrentlyLiked: post.isLiked,
-      currentLikesCount: post.likesCount,
+  Widget _buildSkeletonList() {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: 5,
+      itemBuilder: (_, __) => Card(
+        margin: const EdgeInsets.only(bottom: 12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(radius: 20, backgroundColor: Colors.grey[300]),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(height: 12, width: 120, color: Colors.grey[300]),
+                        const SizedBox(height: 4),
+                        Container(height: 10, width: 60, color: Colors.grey[200]),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Container(height: 14, width: double.infinity, color: Colors.grey[200]),
+              const SizedBox(height: 4),
+              Container(height: 14, width: 200, color: Colors.grey[200]),
+            ],
+          ),
+        ),
+      ),
     );
+  }
+
+  void _toggleLike(Post post) async {
+    ref.read(communityFeedProvider.notifier).toggleLike(post.id);
 
     try {
-      await repo.likePost(post.id);
+      await ref.read(communityRepositoryProvider).likePost(post.id);
     } catch (e) {
-      ref.read(communityFeedProvider.notifier).toggleLike(
-        post.id,
-        isCurrentlyLiked: previousIsLiked,
-        currentLikesCount: previousLikesCount - 1,
-      );
+      ref.read(communityFeedProvider.notifier).toggleLike(post.id);
       if (mounted) {
-        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Could not update like')),
+        );
+      }
+    }
+  }
+
+  void _toggleBookmark(String postId) async {
+    final wasBookmarked = _bookmarkedIds.contains(postId);
+    setState(() {
+      if (wasBookmarked) {
+        _bookmarkedIds.remove(postId);
+      } else {
+        _bookmarkedIds.add(postId);
+      }
+    });
+
+    try {
+      await ref.read(communityRepositoryProvider).toggleBookmark(postId);
+    } catch (e) {
+      setState(() {
+        if (wasBookmarked) {
+          _bookmarkedIds.add(postId);
+        } else {
+          _bookmarkedIds.remove(postId);
+        }
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not update bookmark')),
         );
       }
     }
@@ -205,6 +296,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen>
             title: Text(r.$2),
             onTap: () async {
               Navigator.pop(context);
+              final ctx = context;
               try {
                 await ref.read(communityRepositoryProvider).reportContent(
                   CreateReportRequest(
@@ -215,14 +307,14 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen>
                 );
                 if (mounted) {
                   // ignore: use_build_context_synchronously
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  ScaffoldMessenger.of(ctx).showSnackBar(
                     const SnackBar(content: Text('Report submitted')),
                   );
                 }
               } catch (e) {
                 if (mounted) {
                   // ignore: use_build_context_synchronously
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  ScaffoldMessenger.of(ctx).showSnackBar(
                     const SnackBar(content: Text('Failed to submit report')),
                   );
                 }
@@ -274,184 +366,6 @@ class _FilterChip extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PostCard extends StatelessWidget {
-  final Post post;
-  final VoidCallback onTap;
-  final VoidCallback onLike;
-  final VoidCallback onReport;
-
-  const _PostCard({
-    required this.post,
-    required this.onTap,
-    required this.onLike,
-    required this.onReport,
-  });
-
-  Color get _typeColor {
-    switch (post.postType) {
-      case 'diy':
-        return Colors.orange;
-      case 'tip':
-        return Colors.blue;
-      case 'marketplace':
-        return AppColors.primary;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  String get _typeLabel {
-    switch (post.postType) {
-      case 'diy':
-        return 'DIY';
-      case 'tip':
-        return 'Tip';
-      case 'marketplace':
-        return 'Marketplace';
-      default:
-        return 'Post';
-    }
-  }
-
-  IconData get _typeIcon {
-    switch (post.postType) {
-      case 'diy':
-        return Icons.build;
-      case 'tip':
-        return Icons.lightbulb;
-      case 'marketplace':
-        return Icons.storefront;
-      default:
-        return Icons.article;
-    }
-  }
-
-  String _timeAgo(DateTime date) {
-    final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
-    return '${(diff.inDays / 7).floor()}w ago';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: _typeColor.withValues(alpha: 0.1),
-                    child: Text(
-                      post.author.initials,
-                      style: TextStyle(
-                        color: _typeColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          post.author.fullName,
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                        ),
-                        Text(
-                          _timeAgo(post.createdAt),
-                          style: TextStyle(color: Colors.grey[500], fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _typeColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(_typeIcon, size: 12, color: _typeColor),
-                        const SizedBox(width: 4),
-                        Text(
-                          _typeLabel,
-                          style: TextStyle(color: _typeColor, fontSize: 10, fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                  ),
-                  PopupMenuButton<String>(
-                    onSelected: (value) {
-                      if (value == 'report') onReport();
-                    },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(value: 'report', child: Text('Report')),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(post.content, style: const TextStyle(fontSize: 14, height: 1.4)),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: onLike,
-                    child: Row(
-                      children: [
-                        Icon(
-                          post.isLiked ? Icons.favorite : Icons.favorite_border,
-                          size: 18,
-                          color: post.isLiked ? Colors.red : Colors.grey,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${post.likesCount}',
-                          style: TextStyle(color: post.isLiked ? Colors.red : Colors.grey, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  GestureDetector(
-                    onTap: onTap,
-                    child: Row(
-                      children: [
-                        Icon(Icons.comment_outlined, size: 18, color: Colors.grey[500]),
-                        const SizedBox(width: 4),
-                        Text('${post.commentsCount}', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: Icon(Icons.share_outlined, size: 18, color: Colors.grey[500]),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            ],
-          ),
         ),
       ),
     );

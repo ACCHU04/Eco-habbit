@@ -17,7 +17,7 @@ void main() {
         Post(
           id: 'p1',
           content: 'Here is a great recycling tip for plastics!',
-          postType: 'tip',
+          postType: PostType.tip,
           likesCount: 5,
           commentsCount: 2,
           createdAt: DateTime.now().subtract(const Duration(hours: 1)),
@@ -67,13 +67,13 @@ void main() {
       expect(find.text('Market'), findsOneWidget);
     });
 
-    testWidgets('shows loading indicator while feed loads', (tester) async {
+    testWidgets('shows skeleton list while feed loads', (tester) async {
       await tester.pumpWidget(buildCommunity(
         feedState: const AsyncValue.loading(),
       ));
       await tester.pump();
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(Card), findsWidgets);
     });
 
     testWidgets('shows post cards when feed data is loaded', (tester) async {
@@ -102,7 +102,7 @@ class _FakeFeedNotifier extends AsyncNotifier<PaginatedPosts>
   @override
   Future<void> loadMore() async {}
   @override
-  void toggleLike(String postId, {required bool isCurrentlyLiked, required int currentLikesCount}) {}
+  void toggleLike(String postId) {}
 }
 
 class _FakeUnreadCountNotifier extends AsyncNotifier<int>

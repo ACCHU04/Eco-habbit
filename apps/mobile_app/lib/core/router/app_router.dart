@@ -20,10 +20,16 @@ import 'package:mobile_app/features/diy/screens/project_details_screen.dart';
 import 'package:mobile_app/features/community/screens/community_feed_screen.dart';
 import 'package:mobile_app/features/community/screens/create_post_screen.dart';
 import 'package:mobile_app/features/community/screens/post_detail_screen.dart';
+import 'package:mobile_app/features/community/screens/bookmarks_screen.dart';
+import 'package:mobile_app/features/community/screens/community_search_screen.dart';
 import 'package:mobile_app/features/profile/screens/profile_screen.dart';
 import 'package:mobile_app/features/profile/screens/settings_screen.dart';
 import 'package:mobile_app/features/notifications/screens/notifications_screen.dart';
 import 'package:mobile_app/features/rewards/screens/rewards_screen.dart';
+import 'package:mobile_app/features/quests/screens/quests_screen.dart';
+import 'package:mobile_app/features/coins/screens/wallet_screen.dart';
+import 'package:mobile_app/features/passport/screens/passport_screen.dart';
+import 'package:mobile_app/features/passport/screens/activity_timeline_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final auth = ref.watch(authProvider);
@@ -155,6 +161,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: '/bookmarks',
+        builder: (context, state) => const BookmarksScreen(),
+      ),
+      GoRoute(
+        path: '/community/search',
+        builder: (context, state) => const CommunitySearchScreen(),
+      ),
+      GoRoute(
         path: '/settings',
         builder: (context, state) => const SettingsScreen(),
       ),
@@ -165,6 +179,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/rewards',
         builder: (context, state) => const RewardsScreen(),
+      ),
+      GoRoute(
+        path: '/quests',
+        builder: (context, state) => const QuestsScreen(),
+      ),
+      GoRoute(
+        path: '/wallet',
+        builder: (context, state) => const WalletScreen(),
+      ),
+      GoRoute(
+        path: '/passport',
+        builder: (context, state) => const PassportScreen(),
+      ),
+      GoRoute(
+        path: '/passport/timeline',
+        builder: (context, state) => const ActivityTimelineScreen(),
       ),
     ],
   );

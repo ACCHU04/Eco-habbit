@@ -1,3 +1,42 @@
+enum PostType { diy, tip, marketplace }
+
+extension PostTypeExtension on PostType {
+  String get label {
+    switch (this) {
+      case PostType.diy:
+        return 'DIY';
+      case PostType.tip:
+        return 'Tip';
+      case PostType.marketplace:
+        return 'Marketplace';
+    }
+  }
+
+  String get value {
+    switch (this) {
+      case PostType.diy:
+        return 'diy';
+      case PostType.tip:
+        return 'tip';
+      case PostType.marketplace:
+        return 'marketplace';
+    }
+  }
+}
+
+PostType postTypeFromString(String? value) {
+  switch (value) {
+    case 'diy':
+      return PostType.diy;
+    case 'tip':
+      return PostType.tip;
+    case 'marketplace':
+      return PostType.marketplace;
+    default:
+      return PostType.tip;
+  }
+}
+
 class PostAuthor {
   final String id;
   final String fullName;
@@ -43,7 +82,7 @@ class Comment {
 class Post {
   final String id;
   final String content;
-  final String postType;
+  final PostType postType;
   final int likesCount;
   final int commentsCount;
   final DateTime createdAt;
@@ -73,7 +112,7 @@ class Post {
     return Post(
       id: json['id'] as String? ?? '',
       content: json['content'] as String? ?? '',
-      postType: json['post_type'] as String? ?? 'tip',
+      postType: postTypeFromString(json['post_type'] as String?),
       likesCount: (json['likes_count'] as num?)?.toInt() ?? 0,
       commentsCount: (json['comments_count'] as num?)?.toInt() ?? 0,
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ?? DateTime.now(),
@@ -87,7 +126,7 @@ class Post {
   Post copyWith({
     String? id,
     String? content,
-    String? postType,
+    PostType? postType,
     int? likesCount,
     int? commentsCount,
     DateTime? createdAt,
@@ -130,7 +169,7 @@ class PaginatedPosts {
 }
 
 class CreatePostRequest {
-  final String postType;
+  final PostType postType;
   final String content;
   final List<String>? imageUrls;
   final String? diyProjectId;
@@ -145,7 +184,7 @@ class CreatePostRequest {
   });
 
   Map<String, dynamic> toJson() => {
-    'post_type': postType,
+    'post_type': postType.value,
     'content': content,
     if (imageUrls != null && imageUrls!.isNotEmpty) 'image_urls': imageUrls,
     if (diyProjectId != null) 'diy_project_id': diyProjectId,

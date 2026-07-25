@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RewardsService, POINTS_RULES } from './rewards.service';
+import { RewardsService, POINTS_RULES, COIN_RULES } from './rewards.service';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 
 describe('RewardsService', () => {
@@ -45,9 +45,18 @@ describe('RewardsService', () => {
     });
   });
 
+  describe('COIN_RULES', () => {
+    it('exports coin values for known actions', () => {
+      expect(COIN_RULES.list_item).toBe(2);
+      expect(COIN_RULES.complete_sale).toBe(10);
+      expect(COIN_RULES.recycle_item).toBe(5);
+      expect(COIN_RULES.like_post).toBe(0);
+    });
+  });
+
   describe('awardPoints', () => {
-    it('inserts reward with correct points for known action', async () => {
-      const mockReward = { id: 'r1', user_id: 'u1', action: 'list_item', points: 10 };
+    it('inserts reward with correct points and coin_value for known action', async () => {
+      const mockReward = { id: 'r1', user_id: 'u1', action: 'list_item', points: 10, coin_value: 2 };
       s.single.mockResolvedValue({ data: mockReward, error: null });
 
       const result = await service.awardPoints('u1', 'list_item');
@@ -59,11 +68,12 @@ describe('RewardsService', () => {
         user_id: 'u1',
         points: 10,
         action: 'list_item',
+        coin_value: 2,
       });
     });
 
     it('uses customPoints when provided', async () => {
-      const mockReward = { id: 'r2', user_id: 'u1', action: 'bonus', points: 100 };
+      const mockReward = { id: 'r2', user_id: 'u1', action: 'bonus', points: 100, coin_value: 0 };
       s.single.mockResolvedValue({ data: mockReward, error: null });
 
       const result = await service.awardPoints('u1', 'bonus', 100);
@@ -73,6 +83,7 @@ describe('RewardsService', () => {
         user_id: 'u1',
         points: 100,
         action: 'bonus',
+        coin_value: 0,
       });
     });
 

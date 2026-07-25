@@ -13,6 +13,7 @@ describe('UsersService', () => {
       update: jest.fn().mockReturnThis(),
       eq: jest.fn().mockReturnThis(),
       single: jest.fn(),
+      rpc: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -78,15 +79,6 @@ describe('UsersService', () => {
           Promise.resolve({ data: listings, error: null }),
         ),
       };
-      const chain2 = {
-        from: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({
-          data: { points: 150 },
-          error: null,
-        }),
-      };
       const chain3 = {
         from: jest.fn().mockReturnThis(),
         select: jest.fn().mockReturnThis(),
@@ -100,8 +92,8 @@ describe('UsersService', () => {
 
       s.from
         .mockReturnValueOnce(chain1)
-        .mockReturnValueOnce(chain2)
         .mockReturnValueOnce(chain3);
+      s.rpc.mockResolvedValue({ data: 150 });
 
       const result = await service.getUserStats('u1');
 
@@ -120,17 +112,11 @@ describe('UsersService', () => {
           Promise.resolve({ data: null, error: null }),
         ),
       };
-      const pointsChain = {
-        from: jest.fn().mockReturnThis(),
-        select: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockReturnThis(),
-        single: jest.fn().mockResolvedValue({ data: null, error: null }),
-      };
 
       s.from
         .mockReturnValueOnce(emptyChain)
-        .mockReturnValueOnce(pointsChain)
         .mockReturnValueOnce(emptyChain);
+      s.rpc.mockResolvedValue({ data: null });
 
       const result = await service.getUserStats('u1');
 

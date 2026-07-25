@@ -81,11 +81,8 @@ export class UsersService {
       .select('id', { count: 'exact' })
       .eq('seller_id', userId);
 
-    const { data: points } = await this.supabase
-      .from('user_points')
-      .select('points')
-      .eq('user_id', userId)
-      .single();
+    const { data: pointsTotal } = await this.supabase
+      .rpc('get_user_points', { p_user_id: userId });
 
     const { data: badges } = await this.supabase
       .from('user_badges')
@@ -96,7 +93,7 @@ export class UsersService {
       success: true,
       data: {
         listings_count: listings?.length || 0,
-        total_points: points?.points || 0,
+        total_points: pointsTotal || 0,
         badges_count: badges?.length || 0,
         badges: badges?.map((b) => b.badge_type) || [],
       },

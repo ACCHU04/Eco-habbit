@@ -15,6 +15,19 @@ export const POINTS_RULES: Record<string, number> = {
   refer_friend: 25,
 };
 
+export const COIN_RULES: Record<string, number> = {
+  list_item: 2,
+  complete_sale: 10,
+  complete_donation: 5,
+  recycle_item: 5,
+  post_community: 1,
+  like_post: 0,
+  comment_post: 0,
+  ai_scan: 1,
+  complete_diy: 8,
+  refer_friend: 5,
+};
+
 export const BADGE_CRITERIA: Record<
   string,
   { action: string; threshold: number }
@@ -22,9 +35,9 @@ export const BADGE_CRITERIA: Record<
   first_sale: { action: 'complete_sale', threshold: 1 },
   recycler: { action: 'recycle_item', threshold: 10 },
   creator: { action: 'complete_diy', threshold: 5 },
-  community_star: { action: 'total_likes_received', threshold: 50 },
-  campus_champion: { action: 'leaderboard_top_10', threshold: 1 },
-  eco_warrior: { action: 'co2_saved_kg', threshold: 100 },
+  community_star: { action: 'post_community', threshold: 10 },
+  campus_champion: { action: 'complete_sale', threshold: 20 },
+  eco_warrior: { action: 'recycle_item', threshold: 50 },
 };
 
 @Injectable()
@@ -38,12 +51,15 @@ export class RewardsService {
     const points = customPoints ?? POINTS_RULES[action] ?? 0;
     if (points === 0) return { success: true, points: 0 };
 
+    const coinValue = COIN_RULES[action] ?? 0;
+
     const { data, error } = await this.supabase
       .from('eco_rewards')
       .insert({
         user_id: userId,
         points,
         action,
+        coin_value: coinValue,
       })
       .select()
       .single();

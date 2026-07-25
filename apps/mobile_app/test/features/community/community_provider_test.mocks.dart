@@ -173,6 +173,23 @@ class MockCommunityRepository extends _i1.Mock
       ) as _i4.Future<void>);
 
   @override
+  _i4.Future<void> deleteComment(
+    String? postId,
+    String? commentId,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #deleteComment,
+          [
+            postId,
+            commentId,
+          ],
+        ),
+        returnValue: _i4.Future<void>.value(),
+        returnValueForMissingStub: _i4.Future<void>.value(),
+      ) as _i4.Future<void>);
+
+  @override
   _i4.Future<void> reportContent(_i2.CreateReportRequest? request) =>
       (super.noSuchMethod(
         Invocation.method(

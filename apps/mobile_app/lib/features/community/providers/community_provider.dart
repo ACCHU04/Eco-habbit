@@ -36,11 +36,13 @@ class CommunityFeedNotifier extends AsyncNotifier<PaginatedPosts> {
     }
   }
 
-  void toggleLike(String postId, {required bool isCurrentlyLiked, required int currentLikesCount}) {
+  void toggleLike(String postId) {
     final current = state.valueOrNull;
     if (current == null) return;
-    final newIsLiked = !isCurrentlyLiked;
-    final newLikesCount = newIsLiked ? currentLikesCount + 1 : currentLikesCount - 1;
+    final post = current.posts.where((p) => p.id == postId).firstOrNull;
+    if (post == null) return;
+    final newIsLiked = !post.isLiked;
+    final newLikesCount = newIsLiked ? post.likesCount + 1 : post.likesCount - 1;
     state = AsyncValue.data(PaginatedPosts(
       posts: current.posts.map((p) => p.id == postId
           ? p.copyWith(isLiked: newIsLiked, likesCount: newLikesCount)
@@ -60,3 +62,36 @@ final communityFeedProvider = AsyncNotifierProvider<CommunityFeedNotifier, Pagin
 final postDetailProvider = FutureProvider.family<Post, String>((ref, id) async {
   return ref.read(communityRepositoryProvider).getPost(id);
 });
+
+class BookmarksNotifier extends AsyncNotifier<PaginatedPosts> {
+  @override
+  Future<PaginatedPosts> build() async {
+    return ref.read(communityRepositoryProvider).getBookmarks();
+  }
+
+  Future<void> loadMore() async {
+    final current = state.valueOrNull;
+    if (current == null || !current.hasMore) return;
+    state = AsyncValue.data(current);
+    try {
+      final next = await ref.read(communityRepositoryProvider).getBookmarks(
+        page: current.page + 1,
+        limit: current.limit,
+      );
+      state = AsyncValue.data(PaginatedPosts(
+        posts: [...current.posts, ...next.posts],
+        page: next.page,
+        limit: next.limit,
+        total: next.total,
+        totalPages: next.totalPages,
+      ));
+    } catch (e) {
+      state = AsyncValue.data(current);
+      rethrow;
+    }
+  }
+}
+
+final bookmarksProvider = AsyncNotifierProvider<BookmarksNotifier, PaginatedPosts>(
+  BookmarksNotifier.new,
+);

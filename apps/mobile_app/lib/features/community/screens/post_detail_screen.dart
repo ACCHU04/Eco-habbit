@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/core/theme/app_theme.dart';
+import 'package:mobile_app/core/theme/colors.dart';
+import 'package:mobile_app/core/utils/time_ago.dart';
 import 'package:mobile_app/features/community/providers/community_provider.dart';
 import 'package:mobile_app/features/community/data/community_repository.dart';
 import 'package:mobile_app/features/community/models/post.dart';
@@ -82,7 +84,7 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                         children: [
                           Text(post.author.fullName, style: const TextStyle(fontWeight: FontWeight.w600)),
                           Text(
-                            _timeAgo(post.createdAt),
+                            timeAgo(post.createdAt),
                             style: const TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                         ],
@@ -91,6 +93,31 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(post.content, style: const TextStyle(fontSize: 14, height: 1.4)),
+                  if (post.imageUrls.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    if (post.imageUrls.length == 1)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: Image.network(post.imageUrls.first, fit: BoxFit.cover),
+                        ),
+                      )
+                    else
+                      SizedBox(
+                        height: 200,
+                        child: PageView.builder(
+                          itemCount: post.imageUrls.length,
+                          itemBuilder: (_, index) => Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 2),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(post.imageUrls[index], fit: BoxFit.cover),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -117,7 +144,12 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                       ),
                     )
                   else
-                    ...post.comments.map((c) => _CommentTile(comment: c)),
+                    ...post.comments.map((c) => _CommentTile(
+                      comment: c,
+                      postId: widget.postId,
+                      currentUserId: 'current-user-id',
+                      onDelete: () => _deleteComment(c),
+                    )),
                 ],
               ),
             ),
@@ -170,14 +202,6 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
     );
   }
 
-  String _timeAgo(DateTime date) {
-    final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
-    return '${(diff.inDays / 7).floor()}w ago';
-  }
-
   Future<void> _submitComment() async {
     final content = _commentController.text.trim();
     if (content.isEmpty) return;
@@ -196,6 +220,41 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
       }
     } finally {
       if (mounted) setState(() => _isSubmittingComment = false);
+    }
+  }
+
+  Future<void> _deleteComment(Comment comment) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Comment'),
+        content: const Text('Are you sure you want to delete this comment?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await ref.read(communityRepositoryProvider).deleteComment(widget.postId, comment.id);
+      ref.invalidate(postDetailProvider(widget.postId));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Comment deleted')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to delete comment')),
+        );
+      }
     }
   }
 
@@ -281,53 +340,58 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
 
 class _CommentTile extends StatelessWidget {
   final Comment comment;
-  const _CommentTile({required this.comment});
+  final String postId;
+  final String currentUserId;
+  final VoidCallback onDelete;
+
+  const _CommentTile({
+    required this.comment,
+    required this.postId,
+    required this.currentUserId,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final isOwnComment = comment.author.id == currentUserId;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 14,
-            backgroundColor: Colors.grey[200],
-            child: Text(
-              comment.author.initials,
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+      child: GestureDetector(
+        onLongPress: isOwnComment ? () => onDelete() : null,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 14,
+              backgroundColor: Colors.grey[200],
+              child: Text(
+                comment.author.initials,
+                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(comment.author.fullName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
-                    const SizedBox(width: 8),
-                    Text(
-                      _timeAgo(comment.createdAt),
-                      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(comment.content, style: const TextStyle(fontSize: 13, height: 1.3)),
-              ],
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(comment.author.fullName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                      const SizedBox(width: 8),
+                      Text(
+                        timeAgo(comment.createdAt),
+                        style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(comment.content, style: const TextStyle(fontSize: 13, height: 1.3)),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
-  }
-
-  String _timeAgo(DateTime date) {
-    final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
-    return '${(diff.inDays / 7).floor()}w ago';
   }
 }

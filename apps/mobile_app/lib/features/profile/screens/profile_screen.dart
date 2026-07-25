@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobile_app/core/theme/app_theme.dart';
+import 'package:mobile_app/core/theme/colors.dart';
+import 'package:mobile_app/core/theme/tokens.dart';
 import 'package:mobile_app/features/auth/providers/auth_provider.dart';
 import 'package:mobile_app/features/profile/providers/profile_provider.dart';
 
@@ -33,7 +34,7 @@ class ProfileScreen extends ConsumerWidget {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(EcoTokens.spacing4),
         children: [
           Center(
             child: CircleAvatar(
@@ -45,7 +46,7 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: EcoTokens.spacing3),
           Center(
             child: Text(
               user?.fullName ?? '',
@@ -55,18 +56,18 @@ class ProfileScreen extends ConsumerWidget {
           Center(
             child: Text(
               user?.college ?? '',
-              style: const TextStyle(color: Colors.grey),
+              style: TextStyle(color: Colors.grey[500]),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: EcoTokens.spacing5),
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(EcoTokens.spacing4),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Impact Stats', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: EcoTokens.spacing3),
                   statsAsync.when(
                     loading: () => const Center(child: CircularProgressIndicator()),
                     error: (e, _) => Center(
@@ -84,7 +85,7 @@ class ProfileScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _StatItem(icon: Icons.storefront, label: 'Listings', value: '${stats.listingsCount}'),
-                        _StatItem(icon: Icons.star, label: 'Points', value: '${stats.totalPoints}'),
+                        _StatItem(icon: Icons.star, label: 'Points', value: '${stats.totalPoints}', color: AppColors.xpPurple),
                         _StatItem(icon: Icons.military_tech, label: 'Badges', value: '${stats.badgesCount}'),
                       ],
                     ),
@@ -93,16 +94,46 @@ class ProfileScreen extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: EcoTokens.spacing3),
           Card(
             child: Column(
               children: [
+                _ProfileMenuItem(
+                  icon: Icons.monetization_on,
+                  title: 'Wallet',
+                  onTap: () => context.push('/wallet'),
+                ),
+                const Divider(height: 1),
+                _ProfileMenuItem(
+                  icon: Icons.eco,
+                  title: 'Eco Passport',
+                  onTap: () => context.push('/passport'),
+                ),
+                const Divider(height: 1),
+                _ProfileMenuItem(
+                  icon: Icons.task_alt,
+                  title: 'Quest History',
+                  onTap: () => context.push('/quests'),
+                ),
+                const Divider(height: 1),
+                _ProfileMenuItem(
+                  icon: Icons.bookmark_outline,
+                  title: 'Bookmarks',
+                  onTap: () => context.push('/bookmarks'),
+                ),
+                const Divider(height: 1),
                 _ProfileMenuItem(
                   icon: Icons.storefront,
                   title: 'My Listings',
                   onTap: () => context.push('/my-listings'),
                 ),
-                const Divider(height: 1),
+              ],
+            ),
+          ),
+          const SizedBox(height: EcoTokens.spacing3),
+          Card(
+            child: Column(
+              children: [
                 _ProfileMenuItem(
                   icon: Icons.star,
                   title: 'Eco Rewards',
@@ -117,7 +148,7 @@ class ProfileScreen extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: EcoTokens.spacing3),
           Card(
             child: Column(
               children: [
@@ -152,14 +183,15 @@ class _StatItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  const _StatItem({required this.icon, required this.label, required this.value});
+  final Color? color;
+  const _StatItem({required this.icon, required this.label, required this.value, this.color});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: AppColors.primary, size: 24),
-        const SizedBox(height: 4),
+        Icon(icon, color: color ?? AppColors.primary, size: 24),
+        const SizedBox(height: EcoTokens.spacing1),
         Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[500])),
       ],

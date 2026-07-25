@@ -11,6 +11,9 @@ import { DiyModule } from './modules/diy/diy.module';
 import { RewardsModule } from './modules/rewards/rewards.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { HomeModule } from './modules/home/home.module';
+import { QuestsModule } from './modules/quests/quests.module';
+import { CoinsModule } from './modules/coins/coins.module';
+import { PassportModule } from './modules/passport/passport.module';
 import { SupabaseModule } from './config/supabase.module';
 import { FirebaseModule } from './config/firebase.module';
 
@@ -28,6 +31,9 @@ import { FirebaseModule } from './config/firebase.module';
     DiyModule,
     RewardsModule,
     NotificationsModule,
+    QuestsModule,
+    CoinsModule,
+    PassportModule,
   ],
   controllers: [AppController],
   providers: [AppService],
