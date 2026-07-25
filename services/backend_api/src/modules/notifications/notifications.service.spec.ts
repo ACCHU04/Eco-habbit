@@ -2,6 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationsService } from './notifications.service';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 
+jest.mock('../../common/helpers/user-sync.helper', () => ({
+  ensureUserExists: jest.fn().mockResolvedValue(undefined),
+}));
+
 function createMockSupabase() {
   const mock: any = {};
   let chainResult: any = { data: null, error: null, count: 0 };

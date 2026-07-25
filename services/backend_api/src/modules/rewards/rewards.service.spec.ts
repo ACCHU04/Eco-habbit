@@ -2,6 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RewardsService, POINTS_RULES, COIN_RULES } from './rewards.service';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 
+jest.mock('../../common/helpers/user-sync.helper', () => ({
+  ensureUserExists: jest.fn().mockResolvedValue(undefined),
+}));
+
 describe('RewardsService', () => {
   let service: RewardsService;
   let s: any;

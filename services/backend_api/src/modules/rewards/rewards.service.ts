@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { ensureUserExists } from '../../common/helpers/user-sync.helper';
 
 export const POINTS_RULES: Record<string, number> = {
   list_item: 10,
@@ -48,6 +49,7 @@ export class RewardsService {
   ) {}
 
   async awardPoints(userId: string, action: string, customPoints?: number) {
+    await ensureUserExists(this.supabase, userId);
     const points = customPoints ?? POINTS_RULES[action] ?? 0;
     if (points === 0) return { success: true, points: 0 };
 
@@ -150,7 +152,7 @@ export class RewardsService {
       if (error) {
         const { data: fallback, error: fallbackError } = await this.supabase
           .from('eco_rewards')
-          .select('user_id, users:user_id(id, full_name, profile_photo)')
+          .select('user_id, points, users:user_id(id, full_name, profile_photo)')
           .order('created_at', { ascending: false })
           .limit(limit);
 

@@ -121,9 +121,9 @@ export class CommunityService {
       await this.supabase.from('post_likes').delete().eq('id', existing.id);
 
       await this.supabase.rpc('decrement_column', {
-        table_name: 'posts',
-        column_name: 'likes_count',
-        row_id: postId,
+        p_table_name: 'posts',
+        p_column_name: 'likes_count',
+        p_row_id: postId,
       });
 
       return { success: true, liked: false };
@@ -136,9 +136,9 @@ export class CommunityService {
     if (error) throw new Error(error.message);
 
     await this.supabase.rpc('increment_column', {
-      table_name: 'posts',
-      column_name: 'likes_count',
-      row_id: postId,
+      p_table_name: 'posts',
+      p_column_name: 'likes_count',
+      p_row_id: postId,
     });
 
     const { data: post } = await this.supabase
@@ -193,9 +193,9 @@ export class CommunityService {
     if (error) throw new Error(error.message);
 
     await this.supabase.rpc('increment_column', {
-      table_name: 'posts',
-      column_name: 'comments_count',
-      row_id: postId,
+      p_table_name: 'posts',
+      p_column_name: 'comments_count',
+      p_row_id: postId,
     });
 
     if (post && post.author_id !== authorId) {
@@ -259,9 +259,9 @@ export class CommunityService {
     if (error) throw new Error(error.message);
 
     await this.supabase.rpc('decrement_column', {
-      table_name: 'posts',
-      column_name: 'comments_count',
-      row_id: postId,
+      p_table_name: 'posts',
+      p_column_name: 'comments_count',
+      p_row_id: postId,
     });
 
     return { success: true, message: 'Comment deleted' };

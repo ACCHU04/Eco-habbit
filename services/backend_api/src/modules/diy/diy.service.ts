@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { ensureUserExists } from '../../common/helpers/user-sync.helper';
 import { DiyQueryDto } from './dto/diy.dto';
 
 @Injectable()
@@ -79,6 +80,7 @@ export class DiyService {
   }
 
   async saveProject(userId: string, projectId: string) {
+    await ensureUserExists(this.supabase, userId);
     // Check project exists
     const { data: project } = await this.supabase
       .from('diy_projects')

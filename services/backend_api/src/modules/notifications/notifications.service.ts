@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { ensureUserExists } from '../../common/helpers/user-sync.helper';
 
 @Injectable()
 export class NotificationsService {
@@ -97,6 +98,7 @@ export class NotificationsService {
   }
 
   async getPreferences(userId: string) {
+    await ensureUserExists(this.supabase, userId);
     const { data, error } = await this.supabase
       .from('notification_preferences')
       .select('*')
@@ -128,6 +130,7 @@ export class NotificationsService {
       community_update?: boolean;
     },
   ) {
+    await ensureUserExists(this.supabase, userId);
     const { data, error } = await this.supabase
       .from('notification_preferences')
       .upsert(
@@ -149,6 +152,7 @@ export class NotificationsService {
     body: string,
     data?: Record<string, any>,
   ) {
+    await ensureUserExists(this.supabase, userId);
     const { data: notification, error } = await this.supabase
       .from('notifications')
       .insert({

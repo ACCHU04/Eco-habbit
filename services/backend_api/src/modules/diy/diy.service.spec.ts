@@ -3,6 +3,10 @@ import { NotFoundException, ConflictException } from '@nestjs/common';
 import { DiyService } from './diy.service';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 
+jest.mock('../../common/helpers/user-sync.helper', () => ({
+  ensureUserExists: jest.fn().mockResolvedValue(undefined),
+}));
+
 describe('DiyService', () => {
   let service: DiyService;
   let s: any;
