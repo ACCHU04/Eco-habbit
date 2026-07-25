@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { ensureUserExists } from '../../common/helpers/user-sync.helper';
 import { CreateListingDto, UpdateListingDto } from './dto/listing.dto';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class MarketplaceService {
   ) {}
 
   async createListing(sellerId: string, dto: CreateListingDto) {
+    await ensureUserExists(this.supabase, sellerId);
     const { image_urls, ...listingData } = dto;
 
     const { data: listing, error } = await this.supabase

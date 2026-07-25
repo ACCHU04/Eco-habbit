@@ -23,34 +23,23 @@ class HomeScreen extends ConsumerWidget {
     final statsAsync = ref.watch(profileStatsProvider);
     final firstName = (user?.fullName ?? '').trim().split(' ').first;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('EcoHabit'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () => context.push('/notifications'),
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.read(todayQuestsProvider.notifier).reload();
-          ref.read(coinBalanceProvider.notifier).reload();
-          ref.read(dashboardProvider.notifier).reload();
-          ref.read(profileStatsProvider.notifier).reload();
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeroBanner(context, theme, firstName, user?.college, statsAsync, coinBalance, dashboardAsync),
-              _buildQuickActions(context, theme),
-              _buildTodayQuests(context, ref, theme, todayQuests),
-              const SizedBox(height: EcoTokens.spacing8),
-            ],
-          ),
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.read(todayQuestsProvider.notifier).reload();
+        ref.read(coinBalanceProvider.notifier).reload();
+        ref.read(dashboardProvider.notifier).reload();
+        ref.read(profileStatsProvider.notifier).reload();
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeroBanner(context, theme, firstName, user?.college, statsAsync, coinBalance, dashboardAsync),
+            _buildQuickActions(context, theme),
+            _buildTodayQuests(context, ref, theme, todayQuests),
+            const SizedBox(height: 100),
+          ],
         ),
       ),
     );
@@ -68,13 +57,13 @@ class HomeScreen extends ConsumerWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(EcoTokens.spacing5),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
             AppColors.primary,
-            AppColors.primary.withValues(alpha: 0.8),
+            AppColors.primaryLight,
           ],
         ),
       ),

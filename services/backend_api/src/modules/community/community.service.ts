@@ -8,6 +8,7 @@ import {
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
+import { ensureUserExists } from '../../common/helpers/user-sync.helper';
 import {
   CreatePostDto,
   CreateCommentDto,
@@ -23,6 +24,7 @@ export class CommunityService {
   ) {}
 
   async createPost(authorId: string, dto: CreatePostDto) {
+    await ensureUserExists(this.supabase, authorId);
     const { image_urls, ...postData } = dto;
 
     const { data: post, error } = await this.supabase
@@ -107,6 +109,7 @@ export class CommunityService {
   }
 
   async likePost(userId: string, postId: string) {
+    await ensureUserExists(this.supabase, userId);
     const { data: existing } = await this.supabase
       .from('post_likes')
       .select('id')
@@ -164,6 +167,7 @@ export class CommunityService {
   }
 
   async addComment(authorId: string, postId: string, dto: CreateCommentDto) {
+    await ensureUserExists(this.supabase, authorId);
     const { data: post } = await this.supabase
       .from('posts')
       .select('author_id')
@@ -340,6 +344,7 @@ export class CommunityService {
   }
 
   async toggleBookmark(userId: string, postId: string) {
+    await ensureUserExists(this.supabase, userId);
     const { data: existing } = await this.supabase
       .from('user_bookmarks')
       .select('id')
@@ -447,6 +452,7 @@ export class CommunityService {
   }
 
   async createReport(reporterId: string, dto: CreateReportDto) {
+    await ensureUserExists(this.supabase, reporterId);
     const { data: report, error } = await this.supabase
       .from('reports')
       .insert({

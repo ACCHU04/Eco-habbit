@@ -5,6 +5,7 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import * as crypto from 'crypto';
+import { ensureUserExists } from '../../common/helpers/user-sync.helper';
 import { ClassifyResponse } from './dto/classify.dto';
 
 @Injectable()
@@ -25,6 +26,7 @@ export class AiService {
   }
 
   async classifyImage(userId: string, imageBuffer: Buffer, imageUrl: string) {
+    await ensureUserExists(this.supabase, userId);
     const imageHash = this.computeHash(imageBuffer);
 
     // Tier 1: Check PostgreSQL ai_scan_cache (durable)
@@ -82,6 +84,7 @@ export class AiService {
   }
 
   async classifyImageByUrl(userId: string, imageUrl: string) {
+    await ensureUserExists(this.supabase, userId);
     const urlHash = this.computeHash(imageUrl);
 
     // Tier 1: Check PostgreSQL ai_scan_cache

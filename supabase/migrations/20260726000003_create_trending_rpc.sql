@@ -6,7 +6,7 @@ RETURNS TABLE (
   id UUID,
   content TEXT,
   post_type TEXT,
-  author_id UUID,
+  author_id TEXT,
   likes_count INTEGER,
   comments_count INTEGER,
   created_at TIMESTAMP,

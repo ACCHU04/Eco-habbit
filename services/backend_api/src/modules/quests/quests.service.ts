@@ -1,6 +1,7 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { ensureUserExists } from '../../common/helpers/user-sync.helper';
 
 const LEVEL_THRESHOLDS: number[] = [
   0, 100, 300, 600, 1000, 1500, 2200, 3000, 4000, 5200,
@@ -156,6 +157,7 @@ export class QuestsService {
   }
 
   async updateQuestProgress(userId: string, questId: string, increment = 1) {
+    await ensureUserExists(this.supabase, userId);
     const { data: quest, error: questError } = await this.supabase
       .from('eco_quests')
       .select('*')

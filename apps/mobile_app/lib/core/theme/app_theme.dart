@@ -269,7 +269,24 @@ class AppTheme {
         elevation: EcoTokens.elevationMd,
       ),
 
-      // ── Bottom Navigation ──
+      // ── Bottom Navigation (Material 2) ──
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: colorScheme.surface,
+        elevation: EcoTokens.elevationSm,
+        selectedItemColor: colorScheme.primary,
+        unselectedItemColor: colorScheme.onSurfaceVariant,
+        selectedLabelStyle: textTheme.labelSmall?.copyWith(
+          color: colorScheme.primary,
+          fontWeight: FontWeight.w600,
+        ),
+        unselectedLabelStyle: textTheme.labelSmall?.copyWith(
+          color: colorScheme.onSurfaceVariant,
+        ),
+        type: BottomNavigationBarType.fixed,
+        showUnselectedLabels: true,
+      ),
+
+      // ── Bottom Navigation (Material 3) ──
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: colorScheme.surface,
         elevation: EcoTokens.elevationSm,

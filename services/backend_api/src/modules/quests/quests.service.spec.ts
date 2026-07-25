@@ -1,6 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { QuestsService } from './quests.service';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
+import { ensureUserExists } from '../../common/helpers/user-sync.helper';
+
+jest.mock('../../common/helpers/user-sync.helper', () => ({
+  ensureUserExists: jest.fn().mockResolvedValue(undefined),
+}));
 
 function createMockChain(terminalResult: any) {
   const chain: any = {};
