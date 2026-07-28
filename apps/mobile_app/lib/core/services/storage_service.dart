@@ -9,6 +9,7 @@ class StorageService {
   static const _kUserRole = 'user_role';
   static const _kUserCollege = 'user_college';
   static const _kThemeMode = 'theme_mode';
+  static const _kCampusSlug = 'campus_slug';
 
   late final SharedPreferences _prefs;
 
@@ -60,4 +61,8 @@ class StorageService {
 
   Future<void> setThemeMode(String mode) => _prefs.setString(_kThemeMode, mode);
   String getThemeMode() => _prefs.getString(_kThemeMode) ?? 'system';
+
+  Future<void> setSelectedCampus(String slug) => _prefs.setString(_kCampusSlug, slug);
+  String? getSelectedCampusSlug() => _prefs.getString(_kCampusSlug);
+  Future<void> clearSelectedCampus() => _prefs.remove(_kCampusSlug);
 }

@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile_app/core/theme/colors.dart';
 import 'package:mobile_app/core/theme/tokens.dart';
 import 'package:mobile_app/features/auth/providers/auth_provider.dart';
+import 'package:mobile_app/features/campus/providers/campus_provider.dart';
+import 'package:mobile_app/features/campus/widgets/campus_avatar.dart';
 import 'package:mobile_app/features/profile/providers/profile_provider.dart';
 
 String _computeInitials(String fullName) {
@@ -57,6 +59,24 @@ class ProfileScreen extends ConsumerWidget {
             child: Text(
               user?.college ?? '',
               style: TextStyle(color: Colors.grey[500]),
+            ),
+          ),
+          const SizedBox(height: EcoTokens.spacing3),
+          Center(
+            child: Consumer(
+              builder: (context, ref, _) {
+                final campus = ref.watch(selectedCampusProvider);
+                if (campus == null) return const SizedBox.shrink();
+                return GestureDetector(
+                  onTap: () => context.push('/campus-picker'),
+                  child: Chip(
+                    avatar: CampusAvatar(campus: campus, size: 20),
+                    label: Text(campus.displayName),
+                    deleteIcon: const Icon(Icons.edit, size: 16),
+                    onDeleted: () => context.push('/campus-picker'),
+                  ),
+                );
+              },
             ),
           ),
           const SizedBox(height: EcoTokens.spacing5),

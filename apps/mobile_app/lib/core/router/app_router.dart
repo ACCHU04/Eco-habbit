@@ -37,6 +37,7 @@ import 'package:mobile_app/features/admin/screens/admin_users_screen.dart';
 import 'package:mobile_app/features/admin/screens/admin_user_detail_screen.dart';
 import 'package:mobile_app/features/admin/screens/admin_reports_screen.dart';
 import 'package:mobile_app/features/admin/screens/admin_audit_screen.dart';
+import 'package:mobile_app/features/campus/screens/campus_picker_screen.dart';
 import 'package:mobile_app/core/widgets/eco_bottom_nav.dart';
 import 'package:mobile_app/core/router/transitions.dart';
 
@@ -320,6 +321,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           context,
           state,
           const AdminAuditScreen(),
+        ),
+      ),
+
+      // Campus
+      GoRoute(
+        path: '/campus-picker',
+        pageBuilder: (context, state) => fadeThroughTransition(
+          context,
+          state,
+          CampusPickerScreen(
+            showSkip: state.extra as bool? ?? true,
+          ),
         ),
       ),
     ],

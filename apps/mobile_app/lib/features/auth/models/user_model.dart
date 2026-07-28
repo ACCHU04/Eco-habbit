@@ -5,6 +5,8 @@ class UserModel {
   final String? college;
   final String? role;
   final String? profilePhoto;
+  final String? campusId;
+  final DateTime? campusJoinedAt;
 
   const UserModel({
     required this.id,
@@ -13,6 +15,8 @@ class UserModel {
     this.college,
     this.role,
     this.profilePhoto,
+    this.campusId,
+    this.campusJoinedAt,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +27,10 @@ class UserModel {
       college: json['college'] as String?,
       role: json['role'] as String?,
       profilePhoto: json['profile_photo'] as String?,
+      campusId: json['campus_id'] as String?,
+      campusJoinedAt: json['campus_joined_at'] != null
+          ? DateTime.parse(json['campus_joined_at'] as String)
+          : null,
     );
   }
 
@@ -33,6 +41,7 @@ class UserModel {
     'college': college,
     'role': role,
     'profile_photo': profilePhoto,
+    'campus_id': campusId,
   };
 
   UserModel copyWith({
@@ -42,6 +51,8 @@ class UserModel {
     String? college,
     String? role,
     String? profilePhoto,
+    String? campusId,
+    DateTime? campusJoinedAt,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -50,6 +61,8 @@ class UserModel {
       college: college ?? this.college,
       role: role ?? this.role,
       profilePhoto: profilePhoto ?? this.profilePhoto,
+      campusId: campusId ?? this.campusId,
+      campusJoinedAt: campusJoinedAt ?? this.campusJoinedAt,
     );
   }
 }
