@@ -1,4 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/core/router/app_router.dart';
@@ -29,6 +31,12 @@ void main() async {
     return;
   }
 
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
+
   try {
     final storage = StorageService();
     await storage.init();
@@ -52,6 +60,7 @@ void main() async {
   } catch (e, st) {
     debugPrint('App initialization failed: $e');
     debugPrintStack(stackTrace: st);
+    FirebaseCrashlytics.instance.recordError(e, st, fatal: true);
     runApp(_InitErrorApp(error: 'App init failed: $e'));
   }
 }

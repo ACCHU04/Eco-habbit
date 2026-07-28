@@ -1,11 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import * as helmet from 'helmet';
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger('Bootstrap');
+
+  app.use(helmet.default());
+
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   app.setGlobalPrefix('api/v1');
 
@@ -31,7 +37,7 @@ async function bootstrap() {
       .setDescription(
         'AI-powered circular economy platform for college students',
       )
-      .setVersion('1.0.0')
+      .setVersion('2.0.0-rc1')
       .addBearerAuth()
       .build();
 

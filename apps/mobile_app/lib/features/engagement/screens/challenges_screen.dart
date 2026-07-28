@@ -61,7 +61,7 @@ class _ChallengesScreenState extends ConsumerState<ChallengesScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
+        children: const [
           _ChallengesListTab(status: 'active'),
           _ChallengesListTab(status: 'pending'),
           _ChallengesListTab(status: 'completed'),

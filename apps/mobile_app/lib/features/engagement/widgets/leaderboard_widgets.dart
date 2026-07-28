@@ -82,7 +82,7 @@ class LeaderboardTile extends StatelessWidget {
         ),
         trailing: Text(
           '$score $scoreLabel',
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.w600,
             color: EcoColors.primary,
             fontSize: 14,
