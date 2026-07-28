@@ -14,31 +14,27 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  String? initError;
-
+  bool firebaseAvailable = false;
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    firebaseAvailable = true;
   } catch (e, st) {
-    debugPrint('Firebase initialization failed: $e');
+    debugPrint('Firebase initialization unavailable: $e');
     debugPrintStack(stackTrace: st);
-    initError = 'Firebase init failed: $e';
   }
 
-  if (initError != null) {
-    runApp(_InitErrorApp(error: initError));
-    return;
-  }
-
-  try {
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-    PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-      return true;
-    };
-  } catch (e) {
-    debugPrint('Crashlytics setup deferred (non-fatal): $e');
+  if (firebaseAvailable) {
+    try {
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+    } catch (e) {
+      debugPrint('Crashlytics setup deferred (non-fatal): $e');
+    }
   }
 
   try {
@@ -64,7 +60,9 @@ void main() async {
   } catch (e, st) {
     debugPrint('App initialization failed: $e');
     debugPrintStack(stackTrace: st);
-    FirebaseCrashlytics.instance.recordError(e, st, fatal: true);
+    if (firebaseAvailable) {
+      FirebaseCrashlytics.instance.recordError(e, st, fatal: true);
+    }
     runApp(_InitErrorApp(error: 'App init failed: $e'));
   }
 }
