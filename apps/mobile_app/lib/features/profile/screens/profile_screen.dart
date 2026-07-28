@@ -157,6 +157,15 @@ class ProfileScreen extends ConsumerWidget {
                   title: 'Notifications',
                   onTap: () => context.push('/notifications'),
                 ),
+                if (user?.role == 'admin' || user?.role == 'super_admin') ...[
+                  const Divider(height: 1),
+                  _ProfileMenuItem(
+                    icon: Icons.admin_panel_settings,
+                    title: 'Admin Panel',
+                    color: Colors.deepPurple,
+                    onTap: () => context.push('/admin'),
+                  ),
+                ],
                 const Divider(height: 1),
                 _ProfileMenuItem(
                   icon: Icons.help_outline,

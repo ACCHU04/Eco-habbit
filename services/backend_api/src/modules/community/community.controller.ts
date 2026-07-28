@@ -21,14 +21,11 @@ import {
   ApiBody,
 } from '@nestjs/swagger';
 import { AuthGuard } from '../../common/guards/auth.guard';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { Roles } from '../../common/decorators/roles.decorator';
 import { CommunityService } from './community.service';
 import {
   CreatePostDto,
   CreateCommentDto,
   CreateReportDto,
-  ResolveReportDto,
 } from './dto/community.dto';
 
 @ApiTags('Community')
@@ -196,42 +193,5 @@ export class ReportsController {
   @ApiOperation({ summary: 'Report content' })
   async createReport(@Req() req: any, @Body() dto: CreateReportDto) {
     return this.communityService.createReport(req.user.id, dto);
-  }
-}
-
-@ApiTags('Admin')
-@Controller('admin')
-@UseGuards(AuthGuard, RolesGuard)
-@Roles('admin')
-export class AdminController {
-  constructor(private readonly communityService: CommunityService) {}
-
-  @Get('reports')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get reported content queue' })
-  @ApiQuery({ name: 'status', required: false })
-  @ApiQuery({ name: 'page', required: false })
-  @ApiQuery({ name: 'limit', required: false })
-  async getReports(
-    @Query('status') status?: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ) {
-    return this.communityService.getReports({
-      status,
-      page: page ? parseInt(page, 10) : undefined,
-      limit: limit ? parseInt(limit, 10) : undefined,
-    });
-  }
-
-  @Post('reports/:id/resolve')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Resolve a report' })
-  async resolveReport(
-    @Req() req: any,
-    @Param('id') id: string,
-    @Body() dto: ResolveReportDto,
-  ) {
-    return this.communityService.resolveReport(id, req.user.id, dto);
   }
 }
