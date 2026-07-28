@@ -4,6 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as helmet from 'helmet';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,6 +13,8 @@ async function bootstrap() {
   app.use(helmet.default());
 
   app.useGlobalFilters(new AllExceptionsFilter());
+
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   app.setGlobalPrefix('api/v1');
 

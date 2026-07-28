@@ -3,6 +3,7 @@ import {
   Inject,
   UnauthorizedException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 import { FIREBASE_ADMIN } from '../../config/firebase.module';
@@ -14,6 +15,8 @@ import { SupabaseClient } from '@supabase/supabase-js';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @Inject(SUPABASE_CLIENT)
     private readonly supabase: SupabaseClient,
@@ -44,7 +47,7 @@ export class AuthService {
         displayName: dto.full_name,
       });
     } catch (fbErr) {
-      console.error('Firebase createUser error:', fbErr);
+      this.logger.error(`Firebase createUser error: ${(fbErr as Error).message}`, (fbErr as Error).stack);
       throw new Error(`Auth creation failed: ${(fbErr as Error).message}`);
     }
 
@@ -57,7 +60,7 @@ export class AuthService {
     });
 
     if (error) {
-      console.error('Supabase insert error:', error);
+      this.logger.error(`Supabase insert error: ${error.message}`);
       throw new Error(error.message);
     }
 
@@ -121,7 +124,7 @@ export class AuthService {
           });
         }
       } catch (dbErr) {
-        console.warn('Supabase sync warning:', (dbErr as Error).message);
+        this.logger.warn(`Supabase sync warning: ${(dbErr as Error).message}`);
       }
 
       const customToken = await this.auth.createCustomToken(decodedToken.uid);
@@ -135,7 +138,7 @@ export class AuthService {
         },
       };
     } catch (error) {
-      console.error('googleLogin error:', error);
+      this.logger.error(`googleLogin error: ${(error as Error).message}`, (error as Error).stack);
       throw new UnauthorizedException('Invalid Google token');
     }
   }

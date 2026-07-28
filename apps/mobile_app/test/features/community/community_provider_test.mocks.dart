@@ -8,9 +8,10 @@ import 'dart:async' as _i4;
 import 'package:mobile_app/features/community/data/community_repository.dart'
     as _i3;
 import 'package:mobile_app/features/community/models/community_filter.dart'
-    as _i5;
+    as _i6;
 import 'package:mobile_app/features/community/models/post.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -68,8 +69,23 @@ class MockCommunityRepository extends _i1.Mock
   }
 
   @override
+  _i4.Future<String> uploadImage(String? filePath) => (super.noSuchMethod(
+        Invocation.method(
+          #uploadImage,
+          [filePath],
+        ),
+        returnValue: _i4.Future<String>.value(_i5.dummyValue<String>(
+          this,
+          Invocation.method(
+            #uploadImage,
+            [filePath],
+          ),
+        )),
+      ) as _i4.Future<String>);
+
+  @override
   _i4.Future<_i2.PaginatedPosts> getFeed({
-    _i5.CommunityFilter? filter,
+    _i6.CommunityFilter? filter,
     int? page = 1,
     int? limit = 20,
   }) =>
@@ -188,6 +204,86 @@ class MockCommunityRepository extends _i1.Mock
         returnValue: _i4.Future<void>.value(),
         returnValueForMissingStub: _i4.Future<void>.value(),
       ) as _i4.Future<void>);
+
+  @override
+  _i4.Future<_i2.PaginatedPosts> searchPosts({
+    required String? query,
+    String? type,
+    int? page = 1,
+    int? limit = 20,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #searchPosts,
+          [],
+          {
+            #query: query,
+            #type: type,
+            #page: page,
+            #limit: limit,
+          },
+        ),
+        returnValue: _i4.Future<_i2.PaginatedPosts>.value(_FakePaginatedPosts_0(
+          this,
+          Invocation.method(
+            #searchPosts,
+            [],
+            {
+              #query: query,
+              #type: type,
+              #page: page,
+              #limit: limit,
+            },
+          ),
+        )),
+      ) as _i4.Future<_i2.PaginatedPosts>);
+
+  @override
+  _i4.Future<List<_i2.Post>> getTrending({int? limit = 10}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getTrending,
+          [],
+          {#limit: limit},
+        ),
+        returnValue: _i4.Future<List<_i2.Post>>.value(<_i2.Post>[]),
+      ) as _i4.Future<List<_i2.Post>>);
+
+  @override
+  _i4.Future<bool> toggleBookmark(String? postId) => (super.noSuchMethod(
+        Invocation.method(
+          #toggleBookmark,
+          [postId],
+        ),
+        returnValue: _i4.Future<bool>.value(false),
+      ) as _i4.Future<bool>);
+
+  @override
+  _i4.Future<_i2.PaginatedPosts> getBookmarks({
+    int? page = 1,
+    int? limit = 20,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getBookmarks,
+          [],
+          {
+            #page: page,
+            #limit: limit,
+          },
+        ),
+        returnValue: _i4.Future<_i2.PaginatedPosts>.value(_FakePaginatedPosts_0(
+          this,
+          Invocation.method(
+            #getBookmarks,
+            [],
+            {
+              #page: page,
+              #limit: limit,
+            },
+          ),
+        )),
+      ) as _i4.Future<_i2.PaginatedPosts>);
 
   @override
   _i4.Future<void> reportContent(_i2.CreateReportRequest? request) =>

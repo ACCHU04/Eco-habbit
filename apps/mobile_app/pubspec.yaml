@@ -16,6 +16,8 @@ dependencies:
   firebase_auth: ^5.0.0
   firebase_messaging: ^15.0.0
   firebase_crashlytics: ^4.0.0
+  firebase_analytics: ^11.0.0
+  firebase_performance: ^0.10.0
   image_picker: ^1.0.0
   cached_network_image: ^3.3.0
   shared_preferences: ^2.2.0

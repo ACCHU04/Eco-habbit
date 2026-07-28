@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile_app/core/services/analytics_service.dart';
 import 'package:mobile_app/features/auth/providers/auth_provider.dart';
 import 'package:mobile_app/features/auth/screens/login_screen.dart';
 import 'package:mobile_app/features/auth/screens/register_screen.dart';
@@ -36,9 +37,11 @@ import 'package:mobile_app/core/router/transitions.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final auth = ref.watch(authProvider);
+  final analytics = AnalyticsService();
 
   return GoRouter(
     initialLocation: '/login',
+    observers: [analytics.createObserver()],
     redirect: (context, state) {
       final authState = auth.hasValue ? auth.value! : null;
       final loc = state.matchedLocation;
