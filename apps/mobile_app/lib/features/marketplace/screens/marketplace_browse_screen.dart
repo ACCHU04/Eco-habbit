@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -212,11 +213,21 @@ class _ListingCard extends StatelessWidget {
                 width: double.infinity,
                 color: theme.colorScheme.surfaceContainerHighest,
                 child: listing.imageUrl != null
-                    ? Image.network(listing.imageUrl!, fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Icon(
+                    ? CachedNetworkImage(
+                        imageUrl: listing.imageUrl!,
+                        fit: BoxFit.cover,
+                        memCacheWidth: 400,
+                        placeholder: (_, __) => Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                        errorWidget: (_, __, ___) => Icon(
                           Icons.image_outlined, size: 48,
                           color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-                        ))
+                        ),
+                      )
                     : Icon(Icons.image_outlined, size: 48,
                         color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
               ),

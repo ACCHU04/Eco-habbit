@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/core/theme/app_theme.dart';
@@ -100,7 +101,19 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                         borderRadius: BorderRadius.circular(8),
                         child: AspectRatio(
                           aspectRatio: 16 / 9,
-                          child: Image.network(post.imageUrls.first, fit: BoxFit.cover),
+                          child: CachedNetworkImage(
+                            imageUrl: post.imageUrls.first,
+                            fit: BoxFit.cover,
+                            memCacheWidth: 800,
+                            placeholder: (_, __) => Container(
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                            ),
+                            errorWidget: (_, __, ___) => Container(
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              child: const Icon(Icons.image_outlined, size: 48),
+                            ),
+                          ),
                         ),
                       )
                     else
@@ -112,7 +125,19 @@ class _PostDetailScreenState extends ConsumerState<PostDetailScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 2),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(8),
-                              child: Image.network(post.imageUrls[index], fit: BoxFit.cover),
+                              child: CachedNetworkImage(
+                                imageUrl: post.imageUrls[index],
+                                fit: BoxFit.cover,
+                                memCacheWidth: 800,
+                                placeholder: (_, __) => Container(
+                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                ),
+                                errorWidget: (_, __, ___) => Container(
+                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                  child: const Icon(Icons.image_outlined, size: 48),
+                                ),
+                              ),
                             ),
                           ),
                         ),

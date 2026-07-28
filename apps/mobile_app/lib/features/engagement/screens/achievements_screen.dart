@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/core/theme/colors.dart';
 import 'package:mobile_app/core/theme/tokens.dart';
+import 'package:mobile_app/core/widgets/eco_empty_state.dart';
+import 'package:mobile_app/core/widgets/eco_error_view.dart';
+import 'package:mobile_app/core/widgets/eco_skeleton.dart';
 import 'package:mobile_app/features/engagement/models/achievement_models.dart';
 import 'package:mobile_app/features/engagement/providers/engagement_providers.dart';
 
@@ -15,24 +18,24 @@ class AchievementsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Achievements')),
       body: achievementsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        loading: () => EcoSkeleton(
+          enabled: true,
+          child: ListView.builder(
+            padding: const EdgeInsets.all(EcoTokens.spacing4),
+            itemCount: 5,
+            itemBuilder: (_, __) => const EcoSkeletonTile(),
+          ),
+        ),
+        error: (e, _) => EcoErrorView(
+          message: 'Failed to load achievements',
+          onRetry: () => ref.invalidate(achievementsProvider),
+        ),
         data: (achievements) {
           if (achievements.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.emoji_events_outlined, size: 48, color: EcoColors.onSurfaceVariantLight),
-                  SizedBox(height: EcoTokens.spacing3),
-                  Text('No achievements yet'),
-                  SizedBox(height: EcoTokens.spacing1),
-                  Text(
-                    'Start taking eco actions to earn achievements!',
-                    style: TextStyle(color: EcoColors.onSurfaceVariantLight),
-                  ),
-                ],
-              ),
+            return const EcoEmptyState(
+              icon: Icons.emoji_events_outlined,
+              title: 'No achievements yet',
+              subtitle: 'Start taking eco actions to earn achievements!',
             );
           }
 

@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
 import 'package:mobile_app/core/theme/colors.dart';
 import 'package:mobile_app/core/theme/tokens.dart';
 import 'package:mobile_app/core/widgets/eco_avatar.dart';
@@ -135,10 +136,15 @@ class EcoPostCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(EcoTokens.radiusSm),
                     child: AspectRatio(
                       aspectRatio: 16 / 9,
-                      child: Image.network(
-                        imageUrls.first,
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrls.first,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        memCacheWidth: 800,
+                        placeholder: (_, __) => Container(
+                          color: cs.surfaceContainer,
+                          child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                        ),
+                        errorWidget: (_, __, ___) => Container(
                           color: cs.surfaceContainer,
                           child: const Icon(Icons.image_outlined),
                         ),
@@ -154,10 +160,15 @@ class EcoPostCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 2),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(EcoTokens.radiusSm),
-                          child: Image.network(
-                            imageUrls[index],
+                          child: CachedNetworkImage(
+                            imageUrl: imageUrls[index],
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Container(
+                            memCacheWidth: 800,
+                            placeholder: (_, __) => Container(
+                              color: cs.surfaceContainer,
+                              child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                            ),
+                            errorWidget: (_, __, ___) => Container(
                               color: cs.surfaceContainer,
                               child: const Icon(Icons.image_outlined),
                             ),

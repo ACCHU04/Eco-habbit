@@ -231,6 +231,7 @@ class FriendTile extends StatelessWidget {
       trailing: onRemove != null
           ? IconButton(
               icon: const Icon(Icons.person_remove, color: EcoColors.error),
+              tooltip: 'Remove friend',
               onPressed: onRemove,
             )
           : null,
@@ -272,10 +273,12 @@ class FriendRequestTile extends StatelessWidget {
         children: [
           IconButton(
             icon: const Icon(Icons.check_circle, color: EcoColors.success),
+            tooltip: 'Accept friend request',
             onPressed: onAccept,
           ),
           IconButton(
             icon: const Icon(Icons.cancel, color: EcoColors.error),
+            tooltip: 'Decline friend request',
             onPressed: onDecline,
           ),
         ],

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/features/marketplace/providers/marketplace_provider.dart';
@@ -49,11 +50,21 @@ class ListingDetailsScreen extends ConsumerWidget {
                 width: double.infinity,
                 color: theme.colorScheme.surfaceContainerHighest,
                 child: listing.imageUrl != null
-                    ? Image.network(listing.imageUrl!, fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Icon(
+                    ? CachedNetworkImage(
+                        imageUrl: listing.imageUrl!,
+                        fit: BoxFit.cover,
+                        memCacheWidth: 800,
+                        placeholder: (_, __) => Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                        errorWidget: (_, __, ___) => Icon(
                           Icons.image_outlined, size: 64,
                           color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-                        ))
+                        ),
+                      )
                     : Icon(Icons.image_outlined, size: 64,
                         color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
               ),
@@ -98,12 +109,20 @@ class ListingDetailsScreen extends ConsumerWidget {
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundColor: theme.colorScheme.primaryContainer,
-                          backgroundImage: listing.seller.profilePhoto != null
-                              ? NetworkImage(listing.seller.profilePhoto!)
-                              : null,
-                          child: listing.seller.profilePhoto == null
-                              ? Icon(Icons.person, color: theme.colorScheme.primary)
-                              : null,
+                          child: listing.seller.profilePhoto != null
+                              ? ClipOval(
+                                  child: CachedNetworkImage(
+                                    imageUrl: listing.seller.profilePhoto!,
+                                    width: 40,
+                                    height: 40,
+                                    fit: BoxFit.cover,
+                                    errorWidget: (_, __, ___) => Icon(
+                                      Icons.person,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                )
+                              : Icon(Icons.person, color: theme.colorScheme.primary),
                         ),
                         title: Text(listing.seller.fullName.isNotEmpty ? listing.seller.fullName : 'Seller'),
                         subtitle: Text(listing.seller.college ?? ''),

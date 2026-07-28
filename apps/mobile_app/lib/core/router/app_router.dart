@@ -32,6 +32,7 @@ import 'package:mobile_app/features/passport/screens/passport_screen.dart';
 import 'package:mobile_app/features/passport/screens/activity_timeline_screen.dart';
 import 'package:mobile_app/features/engagement/screens/engagement_hub_screen.dart';
 import 'package:mobile_app/core/widgets/eco_bottom_nav.dart';
+import 'package:mobile_app/core/router/transitions.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final auth = ref.watch(authProvider);
@@ -117,90 +118,152 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       GoRoute(
         path: '/marketplace/:id',
-        builder: (context, state) => ListingDetailsScreen(
-          listingId: state.pathParameters['id']!,
+        pageBuilder: (context, state) => slideUpTransition(
+          context,
+          state,
+          ListingDetailsScreen(listingId: state.pathParameters['id']!),
         ),
       ),
       GoRoute(
         path: '/create-listing',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final extra = state.extra as Listing?;
-          return CreateListingScreen(existingListing: extra);
+          return sharedAxisTransition(
+            context,
+            state,
+            CreateListingScreen(existingListing: extra),
+          );
         },
       ),
       GoRoute(
         path: '/my-listings',
-        builder: (context, state) => const MyListingsScreen(),
+        pageBuilder: (context, state) => sharedAxisTransition(
+          context,
+          state,
+          const MyListingsScreen(),
+        ),
       ),
       GoRoute(
         path: '/scan-result',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final data = state.extra as ScanResultData;
-          return ScanResultScreen(data: data);
+          return slideUpTransition(context, state, ScanResultScreen(data: data));
         },
       ),
       GoRoute(
         path: '/diy',
-        builder: (context, state) => const DiyBrowseScreen(),
+        pageBuilder: (context, state) => sharedAxisTransition(
+          context,
+          state,
+          const DiyBrowseScreen(),
+        ),
       ),
       GoRoute(
         path: '/diy/:id',
-        builder: (context, state) => ProjectDetailsScreen(
-          projectId: state.pathParameters['id']!,
+        pageBuilder: (context, state) => slideUpTransition(
+          context,
+          state,
+          ProjectDetailsScreen(projectId: state.pathParameters['id']!),
         ),
       ),
       GoRoute(
         path: '/create-post',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return CreatePostScreen(extra: extra);
+          return sharedAxisTransition(
+            context,
+            state,
+            CreatePostScreen(extra: extra),
+          );
         },
       ),
       GoRoute(
         path: '/community/post/:id',
-        builder: (context, state) => PostDetailScreen(
-          postId: state.pathParameters['id']!,
+        pageBuilder: (context, state) => slideUpTransition(
+          context,
+          state,
+          PostDetailScreen(postId: state.pathParameters['id']!),
         ),
       ),
       GoRoute(
         path: '/bookmarks',
-        builder: (context, state) => const BookmarksScreen(),
+        pageBuilder: (context, state) => sharedAxisTransition(
+          context,
+          state,
+          const BookmarksScreen(),
+        ),
       ),
       GoRoute(
         path: '/community/search',
-        builder: (context, state) => const CommunitySearchScreen(),
+        pageBuilder: (context, state) => sharedAxisTransition(
+          context,
+          state,
+          const CommunitySearchScreen(),
+        ),
       ),
       GoRoute(
         path: '/settings',
-        builder: (context, state) => const SettingsScreen(),
+        pageBuilder: (context, state) => sharedAxisTransition(
+          context,
+          state,
+          const SettingsScreen(),
+        ),
       ),
       GoRoute(
         path: '/notifications',
-        builder: (context, state) => const NotificationsScreen(),
+        pageBuilder: (context, state) => slideUpTransition(
+          context,
+          state,
+          const NotificationsScreen(),
+        ),
       ),
       GoRoute(
         path: '/rewards',
-        builder: (context, state) => const RewardsScreen(),
+        pageBuilder: (context, state) => fadeThroughTransition(
+          context,
+          state,
+          const RewardsScreen(),
+        ),
       ),
       GoRoute(
         path: '/quests',
-        builder: (context, state) => const QuestsScreen(),
+        pageBuilder: (context, state) => fadeThroughTransition(
+          context,
+          state,
+          const QuestsScreen(),
+        ),
       ),
       GoRoute(
         path: '/wallet',
-        builder: (context, state) => const WalletScreen(),
+        pageBuilder: (context, state) => fadeThroughTransition(
+          context,
+          state,
+          const WalletScreen(),
+        ),
       ),
       GoRoute(
         path: '/passport',
-        builder: (context, state) => const PassportScreen(),
+        pageBuilder: (context, state) => fadeThroughTransition(
+          context,
+          state,
+          const PassportScreen(),
+        ),
       ),
       GoRoute(
         path: '/passport/timeline',
-        builder: (context, state) => const ActivityTimelineScreen(),
+        pageBuilder: (context, state) => slideUpTransition(
+          context,
+          state,
+          const ActivityTimelineScreen(),
+        ),
       ),
       GoRoute(
         path: '/engage',
-        builder: (context, state) => const EngagementHubScreen(),
+        pageBuilder: (context, state) => fadeThroughTransition(
+          context,
+          state,
+          const EngagementHubScreen(),
+        ),
       ),
     ],
   );

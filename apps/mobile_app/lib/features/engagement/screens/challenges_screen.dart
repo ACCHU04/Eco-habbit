@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/core/theme/colors.dart';
 import 'package:mobile_app/core/theme/tokens.dart';
+import 'package:mobile_app/core/widgets/eco_empty_state.dart';
+import 'package:mobile_app/core/widgets/eco_error_view.dart';
+import 'package:mobile_app/core/widgets/eco_skeleton.dart';
 import 'package:mobile_app/features/engagement/providers/engagement_providers.dart';
 import 'package:mobile_app/features/engagement/widgets/challenge_widgets.dart';
 import 'package:mobile_app/features/engagement/data/engagement_repository.dart';
@@ -94,34 +97,33 @@ class _ChallengesListTab extends ConsumerWidget {
     final currentUserId = ref.watch(authProvider).valueOrNull?.user?.id;
 
     return challengesAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      loading: () => EcoSkeleton(
+        enabled: true,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(EcoTokens.spacing4),
+          itemCount: 5,
+          itemBuilder: (_, __) => const EcoSkeletonTile(),
+        ),
+      ),
+      error: (e, _) => EcoErrorView(
+        message: 'Failed to load challenges',
+        onRetry: () => ref.invalidate(challengesProvider),
+      ),
       data: (challenges) {
         final filtered = challenges.where((c) => c.status == status).toList();
         if (filtered.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-              Icon(
-                  status == 'active'
-                      ? Icons.sports_esports
-                      : status == 'pending'
-                          ? Icons.hourglass_empty
-                          : Icons.history,
-                  size: 48,
-                  color: EcoColors.onSurfaceVariantLight,
-                ),
-                const SizedBox(height: EcoTokens.spacing3),
-                Text(
-                  status == 'active'
-                      ? 'No active challenges'
-                      : status == 'pending'
-                          ? 'No pending challenges'
-                          : 'No completed challenges yet',
-                ),
-              ],
-            ),
+          return EcoEmptyState(
+            icon: status == 'active'
+                ? Icons.sports_esports_outlined
+                : status == 'pending'
+                    ? Icons.hourglass_empty_outlined
+                    : Icons.history_outlined,
+            title: status == 'active'
+                ? 'No active challenges'
+                : status == 'pending'
+                    ? 'No pending challenges'
+                    : 'No completed challenges yet',
+            subtitle: 'Challenge a friend to start competing!',
           );
         }
         return ListView.builder(
@@ -212,14 +214,16 @@ class _FriendsSheet extends ConsumerWidget {
               Expanded(
                 child: friendsAsync.when(
                   loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (e, _) => Center(child: Text('Error: $e')),
+                  error: (e, _) => EcoErrorView(
+                    message: 'Failed to load friends',
+                    onRetry: () => ref.invalidate(friendsProvider),
+                  ),
                   data: (friends) {
                     if (friends.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          'No friends yet. Send a friend request!',
-                          style: TextStyle(color: EcoColors.onSurfaceVariantLight),
-                        ),
+                      return const EcoEmptyState(
+                        icon: Icons.people_outline,
+                        title: 'No friends yet',
+                        subtitle: 'Send a friend request to get started!',
                       );
                     }
                     return ListView.builder(
@@ -301,7 +305,7 @@ class _CreateChallengeSheetState extends ConsumerState<_CreateChallengeSheet> {
             const SizedBox(height: EcoTokens.spacing4),
             friendsAsync.when(
               loading: () => const CircularProgressIndicator(),
-              error: (e, _) => Text('Error loading friends: $e'),
+              error: (e, _) => const Text('Failed to load friends'),
               data: (friends) {
                 if (friends.isEmpty) {
                   return const Text(

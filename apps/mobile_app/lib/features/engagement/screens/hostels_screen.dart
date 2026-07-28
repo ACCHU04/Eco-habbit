@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile_app/core/theme/colors.dart';
 import 'package:mobile_app/core/theme/tokens.dart';
+import 'package:mobile_app/core/widgets/eco_empty_state.dart';
+import 'package:mobile_app/core/widgets/eco_error_view.dart';
+import 'package:mobile_app/core/widgets/eco_skeleton.dart';
 import 'package:mobile_app/features/engagement/providers/engagement_providers.dart';
 import 'package:mobile_app/features/engagement/widgets/hostel_widgets.dart';
 
@@ -58,24 +60,17 @@ class _HostelLeaderboardTab extends ConsumerWidget {
     final hostelsAsync = ref.watch(hostelsProvider);
 
     return hostelsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      loading: () => const _HostelSkeleton(),
+      error: (e, _) => EcoErrorView(
+        message: 'Failed to load hostels',
+        onRetry: () => ref.invalidate(hostelsProvider),
+      ),
       data: (hostels) {
         if (hostels.isEmpty) {
-          return const Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.apartment, size: 48, color: EcoColors.onSurfaceVariantLight),
-                SizedBox(height: EcoTokens.spacing3),
-                Text('No hostels found'),
-                SizedBox(height: EcoTokens.spacing1),
-                Text(
-                  'Join a hostel to compete with others!',
-                  style: TextStyle(color: EcoColors.onSurfaceVariantLight),
-                ),
-              ],
-            ),
+          return const EcoEmptyState(
+            icon: Icons.apartment_outlined,
+            title: 'No hostels found',
+            subtitle: 'Join a hostel to compete with others!',
           );
         }
         return ListView.builder(
@@ -102,24 +97,17 @@ class _BattlesTab extends ConsumerWidget {
     final battlesAsync = ref.watch(battlesProvider);
 
     return battlesAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      loading: () => const _HostelSkeleton(),
+      error: (e, _) => EcoErrorView(
+        message: 'Failed to load battles',
+        onRetry: () => ref.invalidate(battlesProvider),
+      ),
       data: (battles) {
         if (battles.isEmpty) {
-          return const Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.sports_mma, size: 48, color: EcoColors.onSurfaceVariantLight),
-                SizedBox(height: EcoTokens.spacing3),
-                Text('No battles yet'),
-                SizedBox(height: EcoTokens.spacing1),
-                Text(
-                  'Start a battle between hostels!',
-                  style: TextStyle(color: EcoColors.onSurfaceVariantLight),
-                ),
-              ],
-            ),
+          return const EcoEmptyState(
+            icon: Icons.sports_mma_outlined,
+            title: 'No battles yet',
+            subtitle: 'Start a battle between hostels!',
           );
         }
         return ListView.builder(
@@ -130,6 +118,22 @@ class _BattlesTab extends ConsumerWidget {
           },
         );
       },
+    );
+  }
+}
+
+class _HostelSkeleton extends StatelessWidget {
+  const _HostelSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return EcoSkeleton(
+      enabled: true,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(EcoTokens.spacing4),
+        itemCount: 5,
+        itemBuilder: (_, __) => const EcoSkeletonTile(),
+      ),
     );
   }
 }

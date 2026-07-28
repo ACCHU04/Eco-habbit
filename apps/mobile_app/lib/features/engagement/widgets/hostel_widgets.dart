@@ -73,14 +73,17 @@ class BattleCard extends StatelessWidget {
                     name: battle.hosteler?.name ?? 'Hostel A',
                     score: battle.startScoreHosteler,
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: EcoTokens.spacing3),
-                    child: Text(
-                      'VS',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: EcoColors.streakFlame,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: EcoTokens.spacing3),
+                    child: Semantics(
+                      label: 'Versus',
+                      child: const Text(
+                        'VS',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: EcoColors.streakFlame,
+                        ),
                       ),
                     ),
                   ),
@@ -165,17 +168,20 @@ class HostelCard extends StatelessWidget {
     return Card(
       color: isUserHostel ? EcoColors.primary.withValues(alpha: 0.05) : null,
       margin: const EdgeInsets.only(bottom: EcoTokens.spacing2),
-      child: ListTile(
+        child: ListTile(
         onTap: onTap,
         leading: CircleAvatar(
           backgroundColor: isUserHostel
               ? EcoColors.primary.withValues(alpha: 0.15)
               : EcoColors.surfaceContainerLight,
-          child: Text(
-            rank <= 3 ? ['🥇', '🥈', '🥉'][rank - 1] : '#$rank',
-            style: TextStyle(
-              fontSize: rank <= 3 ? 18 : 12,
-              fontWeight: FontWeight.bold,
+          child: Semantics(
+            label: rank <= 3 ? 'Rank $rank medal' : 'Rank $rank',
+            child: Text(
+              rank <= 3 ? ['🥇', '🥈', '🥉'][rank - 1] : '#$rank',
+              style: TextStyle(
+                fontSize: rank <= 3 ? 18 : 12,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),

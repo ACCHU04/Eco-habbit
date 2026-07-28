@@ -11,11 +11,15 @@ class LeaderboardRankBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     if (rank <= 3) {
       final emojis = ['🥇', '🥈', '🥉'];
-      return SizedBox(
-        width: size,
-        height: size,
-        child: Center(
-          child: Text(emojis[rank - 1], style: TextStyle(fontSize: size * 0.6)),
+      final labels = ['Gold medal', 'Silver medal', 'Bronze medal'];
+      return Semantics(
+        label: labels[rank - 1],
+        child: SizedBox(
+          width: size,
+          height: size,
+          child: Center(
+            child: Text(emojis[rank - 1], style: TextStyle(fontSize: size * 0.6)),
+          ),
         ),
       );
     }

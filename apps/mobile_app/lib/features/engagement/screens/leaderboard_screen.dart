@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile_app/core/theme/colors.dart';
 import 'package:mobile_app/core/theme/tokens.dart';
+import 'package:mobile_app/core/widgets/eco_empty_state.dart';
+import 'package:mobile_app/core/widgets/eco_error_view.dart';
+import 'package:mobile_app/core/widgets/eco_skeleton.dart';
 import 'package:mobile_app/features/engagement/providers/engagement_providers.dart';
 import 'package:mobile_app/features/engagement/widgets/leaderboard_widgets.dart';
 import 'package:mobile_app/features/engagement/widgets/hostel_widgets.dart';
@@ -90,11 +92,18 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
         const SizedBox(height: EcoTokens.spacing2),
         Expanded(
           child: leaderboardAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Error: $e')),
+            loading: () => const _LeaderboardSkeleton(),
+            error: (e, _) => EcoErrorView(
+              message: 'Failed to load leaderboard',
+              onRetry: () => ref.invalidate(filteredLeaderboardProvider),
+            ),
             data: (entries) {
               if (entries.isEmpty) {
-                return const Center(child: Text('No leaderboard data yet'));
+                return const EcoEmptyState(
+                  icon: Icons.leaderboard_outlined,
+                  title: 'No leaderboard data yet',
+                  subtitle: 'Start earning points to climb the ranks!',
+                );
               }
               return ListView.builder(
                 padding: const EdgeInsets.all(EcoTokens.spacing4),
@@ -121,11 +130,18 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
     final hostelAsync = ref.watch(hostelLeaderboardProvider);
 
     return hostelAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      loading: () => const _LeaderboardSkeleton(),
+      error: (e, _) => EcoErrorView(
+        message: 'Failed to load hostel leaderboard',
+        onRetry: () => ref.invalidate(hostelLeaderboardProvider),
+      ),
       data: (hostels) {
         if (hostels.isEmpty) {
-          return const Center(child: Text('No hostels yet'));
+          return const EcoEmptyState(
+            icon: Icons.apartment_outlined,
+            title: 'No hostels yet',
+            subtitle: 'Join a hostel to compete with others!',
+          );
         }
         return ListView.builder(
           padding: const EdgeInsets.all(EcoTokens.spacing4),
@@ -148,24 +164,17 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
     final friendsAsync = ref.watch(friendLeaderboardProvider);
 
     return friendsAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      loading: () => const _LeaderboardSkeleton(),
+      error: (e, _) => EcoErrorView(
+        message: 'Failed to load friends leaderboard',
+        onRetry: () => ref.invalidate(friendLeaderboardProvider),
+      ),
       data: (entries) {
         if (entries.isEmpty) {
-          return const Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.people_outline, size: 48, color: EcoColors.onSurfaceVariantLight),
-                SizedBox(height: EcoTokens.spacing3),
-                Text('No friends yet'),
-                SizedBox(height: EcoTokens.spacing1),
-                Text(
-                  'Add friends to compare your eco progress!',
-                  style: TextStyle(color: EcoColors.onSurfaceVariantLight),
-                ),
-              ],
-            ),
+          return const EcoEmptyState(
+            icon: Icons.people_outline,
+            title: 'No friends yet',
+            subtitle: 'Add friends to compare your eco progress!',
           );
         }
         return ListView.builder(
@@ -202,11 +211,18 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
         const SizedBox(height: EcoTokens.spacing2),
         Expanded(
           child: periodAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Error: $e')),
+            loading: () => const _LeaderboardSkeleton(),
+            error: (e, _) => EcoErrorView(
+              message: 'Failed to load period leaderboard',
+              onRetry: () => ref.invalidate(periodLeaderboardProvider),
+            ),
             data: (entries) {
               if (entries.isEmpty) {
-                return const Center(child: Text('No activity this period'));
+                return const EcoEmptyState(
+                  icon: Icons.timeline_outlined,
+                  title: 'No activity this period',
+                  subtitle: 'Complete actions to see your progress!',
+                );
               }
               return ListView.builder(
                 padding: const EdgeInsets.all(EcoTokens.spacing4),
@@ -226,6 +242,22 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen>
           ),
         ),
       ],
+    );
+  }
+}
+
+class _LeaderboardSkeleton extends StatelessWidget {
+  const _LeaderboardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return EcoSkeleton(
+      enabled: true,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(EcoTokens.spacing4),
+        itemCount: 5,
+        itemBuilder: (_, __) => const EcoSkeletonTile(),
+      ),
     );
   }
 }
