@@ -2,16 +2,29 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, ConflictException } from '@nestjs/common';
 import { DiyService } from './diy.service';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
+import { AppCacheService } from '../../common/cache/cache.service';
 
 jest.mock('../../common/helpers/user-sync.helper', () => ({
   ensureUserExists: jest.fn().mockResolvedValue(undefined),
 }));
+
+const mockCacheService = {
+  get: jest.fn().mockResolvedValue(null),
+  set: jest.fn().mockResolvedValue(undefined),
+  del: jest.fn().mockResolvedValue(undefined),
+  invalidatePattern: jest.fn().mockResolvedValue(undefined),
+};
 
 describe('DiyService', () => {
   let service: DiyService;
   let s: any;
 
   beforeEach(async () => {
+    mockCacheService.get.mockClear();
+    mockCacheService.set.mockClear();
+    mockCacheService.del.mockClear();
+    mockCacheService.invalidatePattern.mockClear();
+
     s = {
       from: jest.fn().mockReturnThis(),
       select: jest.fn().mockReturnThis(),
@@ -28,6 +41,7 @@ describe('DiyService', () => {
       providers: [
         DiyService,
         { provide: SUPABASE_CLIENT, useValue: s },
+        { provide: AppCacheService, useValue: mockCacheService },
       ],
     }).compile();
 

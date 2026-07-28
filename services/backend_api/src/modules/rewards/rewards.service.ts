@@ -2,6 +2,10 @@ import { Injectable, Inject } from '@nestjs/common';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { ensureUserExists } from '../../common/helpers/user-sync.helper';
+import {
+  AppCacheService,
+  CacheKeys,
+} from '../../common/cache/cache.service';
 
 export const POINTS_RULES: Record<string, number> = {
   list_item: 10,
@@ -69,6 +73,7 @@ export class RewardsService {
   constructor(
     @Inject(SUPABASE_CLIENT)
     private readonly supabase: SupabaseClient,
+    private readonly cacheService: AppCacheService,
   ) {}
 
   async awardPoints(userId: string, action: string, customPoints?: number) {
@@ -92,6 +97,10 @@ export class RewardsService {
     if (error) throw new Error(error.message);
 
     await this.checkAndAwardBadges(userId);
+
+    // Invalidate leaderboard caches (points changed rankings)
+    await this.cacheService.invalidatePattern('leaderboard:');
+    await this.cacheService.del(CacheKeys.home.dashboard(userId));
 
     return { success: true, data, points };
   }

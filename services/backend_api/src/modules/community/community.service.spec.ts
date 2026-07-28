@@ -1,17 +1,30 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CommunityService } from './community.service';
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
+import { AppCacheService } from '../../common/cache/cache.service';
 import { ensureUserExists } from '../../common/helpers/user-sync.helper';
 
 jest.mock('../../common/helpers/user-sync.helper', () => ({
   ensureUserExists: jest.fn().mockResolvedValue(undefined),
 }));
 
+const mockCacheService = {
+  get: jest.fn().mockResolvedValue(null),
+  set: jest.fn().mockResolvedValue(undefined),
+  del: jest.fn().mockResolvedValue(undefined),
+  invalidatePattern: jest.fn().mockResolvedValue(undefined),
+};
+
 describe('CommunityService', () => {
   let service: CommunityService;
   let mockSupabase: any;
 
   beforeEach(async () => {
+    mockCacheService.get.mockClear();
+    mockCacheService.set.mockClear();
+    mockCacheService.del.mockClear();
+    mockCacheService.invalidatePattern.mockClear();
+
     mockSupabase = {
       from: jest.fn().mockReturnThis(),
       select: jest.fn().mockReturnThis(),
@@ -31,6 +44,7 @@ describe('CommunityService', () => {
       providers: [
         CommunityService,
         { provide: SUPABASE_CLIENT, useValue: mockSupabase },
+        { provide: AppCacheService, useValue: mockCacheService },
       ],
     }).compile();
 

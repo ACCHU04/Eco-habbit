@@ -21,6 +21,7 @@ import { HostelsModule } from './modules/hostels/hostels.module';
 import { ChallengesModule } from './modules/challenges/challenges.module';
 import { SupabaseModule } from './config/supabase.module';
 import { FirebaseModule } from './config/firebase.module';
+import { AppCacheModule } from './common/cache/cache.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 
 @Module({
@@ -36,6 +37,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     }),
     SupabaseModule,
     FirebaseModule,
+    AppCacheModule,
     AuthModule,
     UsersModule,
     HomeModule,

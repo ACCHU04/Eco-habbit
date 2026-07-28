@@ -10,6 +10,11 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
 import { ensureUserExists } from '../../common/helpers/user-sync.helper';
 import {
+  AppCacheService,
+  CacheKeys,
+  CacheTTL,
+} from '../../common/cache/cache.service';
+import {
   CreatePostDto,
   CreateCommentDto,
   CreateReportDto,
@@ -21,6 +26,7 @@ export class CommunityService {
   constructor(
     @Inject(SUPABASE_CLIENT)
     private readonly supabase: SupabaseClient,
+    private readonly cacheService: AppCacheService,
   ) {}
 
   async createPost(authorId: string, dto: CreatePostDto) {
@@ -48,11 +54,20 @@ export class CommunityService {
       if (imgError) throw new Error(imgError.message);
     }
 
+    // Invalidate feed and trending caches
+    await this.cacheService.invalidatePattern('community:');
+    await this.cacheService.del(CacheKeys.home.dashboard(authorId));
+
     return { success: true, data: post };
   }
 
   async getFeed(params: { type?: string; page?: number; limit?: number }) {
     const { type, page = 1, limit = 20 } = params;
+
+    const cacheKey = CacheKeys.community.feed(type || '', page);
+    const cached = await this.cacheService.get<any>(cacheKey);
+    if (cached) return cached;
+
     const offset = (page - 1) * limit;
 
     let query = this.supabase
@@ -77,7 +92,7 @@ export class CommunityService {
 
     if (error) throw new Error(error.message);
 
-    return {
+    const result = {
       success: true,
       data: data || [],
       pagination: {
@@ -87,6 +102,9 @@ export class CommunityService {
         total_pages: Math.ceil((count || 0) / limit),
       },
     };
+
+    await this.cacheService.set(cacheKey, result, CacheTTL.FEED);
+    return result;
   }
 
   async getPostById(id: string) {
@@ -126,6 +144,7 @@ export class CommunityService {
         p_row_id: postId,
       });
 
+      await this.cacheService.invalidatePattern('community:');
       return { success: true, liked: false };
     }
 
@@ -163,6 +182,7 @@ export class CommunityService {
       );
     }
 
+    await this.cacheService.invalidatePattern('community:');
     return { success: true, liked: true };
   }
 
@@ -312,6 +332,10 @@ export class CommunityService {
   async getTrending(params: { limit?: number }) {
     const { limit = 10 } = params;
 
+    const cacheKey = CacheKeys.community.trending(limit);
+    const cached = await this.cacheService.get<any>(cacheKey);
+    if (cached) return cached;
+
     const { data, error } = await this.supabase
       .rpc('get_trending_posts', { result_limit: limit });
 
@@ -331,16 +355,17 @@ export class CommunityService {
 
       if (fallback.error) throw new Error(fallback.error.message);
 
-      return {
+      const result = {
         success: true,
         data: fallback.data || [],
       };
+      await this.cacheService.set(cacheKey, result, CacheTTL.FEED);
+      return result;
     }
 
-    return {
-      success: true,
-      data: data || [],
-    };
+    const result = { success: true, data: data || [] };
+    await this.cacheService.set(cacheKey, result, CacheTTL.FEED);
+    return result;
   }
 
   async toggleBookmark(userId: string, postId: string) {

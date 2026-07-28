@@ -7,6 +7,11 @@ import {
 import { SUPABASE_CLIENT } from '../../config/supabase.module';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { ensureUserExists } from '../../common/helpers/user-sync.helper';
+import {
+  AppCacheService,
+  CacheKeys,
+  CacheTTL,
+} from '../../common/cache/cache.service';
 import { DiyQueryDto } from './dto/diy.dto';
 
 @Injectable()
@@ -14,15 +19,24 @@ export class DiyService {
   constructor(
     @Inject(SUPABASE_CLIENT)
     private readonly supabase: SupabaseClient,
+    private readonly cacheService: AppCacheService,
   ) {}
 
   async getProjects(query: DiyQueryDto) {
     const { category, difficulty, search, page = '1', limit = '20' } = query;
     const pageNum = Number(page);
     const limitNum = Number(limit);
-    const offset = (pageNum - 1) * limitNum;
+
+    const cacheKey = CacheKeys.diy.list(
+      category || '',
+      difficulty || '',
+      pageNum,
+    );
+    const cached = await this.cacheService.get<any>(cacheKey);
+    if (cached) return cached;
 
     try {
+      const offset = (pageNum - 1) * limitNum;
       let qb = this.supabase
         .from('diy_projects')
         .select('*', { count: 'exact' })
@@ -43,7 +57,7 @@ export class DiyService {
 
       if (error) throw new Error(error.message);
 
-      return {
+      const result = {
         success: true,
         data: data || [],
         pagination: {
@@ -53,6 +67,9 @@ export class DiyService {
           total_pages: Math.ceil((count || 0) / limitNum),
         },
       };
+
+      await this.cacheService.set(cacheKey, result, CacheTTL.DIY);
+      return result;
     } catch (_) {
       return {
         success: true,
