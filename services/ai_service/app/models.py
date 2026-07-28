@@ -13,11 +13,18 @@ class WasteCategory(str, Enum):
     others = "others"
 
 
+class LabelInfo(BaseModel):
+    label: str
+    confidence: float
+
+
 class ClassificationResult(BaseModel):
     category: WasteCategory
     confidence: float
-    disposal_tips: str
+    disposal_tips: str = ""
     is_uncertain: bool = False
+    explanation: str = ""
+    top_labels: list[LabelInfo] = []
 
 
 class DiySuggestion(BaseModel):

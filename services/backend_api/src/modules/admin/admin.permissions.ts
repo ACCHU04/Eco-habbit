@@ -20,6 +20,7 @@ export const PERMISSIONS: Record<string, string[]> = {
     'canResolveReports',
     'canManageSettings',
     'canViewAuditLog',
+    'canManageCampuses',
   ],
   super_admin: [
     'canManageUsers',
@@ -30,6 +31,7 @@ export const PERMISSIONS: Record<string, string[]> = {
     'canViewAuditLog',
     'canManageAdmins',
     'canManageSystem',
+    'canManageCampuses',
   ],
 };
 

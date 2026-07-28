@@ -6,6 +6,8 @@ class ScanResultData {
   final double confidence;
   final String disposalTips;
   final bool isUncertain;
+  final String explanation;
+  final List<LabelInfo> topLabels;
   final List<DiySuggestionItem> diySuggestions;
 
   const ScanResultData({
@@ -14,6 +16,8 @@ class ScanResultData {
     required this.confidence,
     required this.disposalTips,
     required this.isUncertain,
+    this.explanation = '',
+    this.topLabels = const [],
     required this.diySuggestions,
   });
 
@@ -24,6 +28,8 @@ class ScanResultData {
       confidence: result.confidence,
       disposalTips: result.disposalTips,
       isUncertain: result.isUncertain,
+      explanation: result.explanation,
+      topLabels: result.topLabels,
       diySuggestions: result.diySuggestions,
     );
   }

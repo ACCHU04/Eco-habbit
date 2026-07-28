@@ -19,6 +19,8 @@ import { PassportModule } from './modules/passport/passport.module';
 import { LeaderboardsModule } from './modules/leaderboards/leaderboards.module';
 import { HostelsModule } from './modules/hostels/hostels.module';
 import { ChallengesModule } from './modules/challenges/challenges.module';
+import { CampusesModule } from './modules/campuses/campuses.module';
+import { DisposalModule } from './modules/disposal/disposal.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { SupabaseModule } from './config/supabase.module';
 import { FirebaseModule } from './config/firebase.module';
@@ -54,6 +56,8 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     LeaderboardsModule,
     HostelsModule,
     ChallengesModule,
+    CampusesModule,
+    DisposalModule,
     AdminModule,
   ],
   controllers: [AppController],

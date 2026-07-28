@@ -1,5 +1,5 @@
 import pytest
-from app.models import WasteCategory, ClassificationResult
+from app.models import WasteCategory, ClassificationResult, LabelInfo
 
 # Test models and pure logic without importing TF-dependent classifier
 
@@ -24,10 +24,15 @@ class TestClassificationResult:
             confidence=0.94,
             disposal_tips="Rinse and recycle",
             is_uncertain=False,
+            explanation="I identified this as plastic because...",
+            top_labels=[LabelInfo(label="plastic_bottle", confidence=0.94)],
         )
         assert result.category == WasteCategory.plastic
         assert result.confidence == 0.94
         assert result.is_uncertain is False
+        assert result.explanation == "I identified this as plastic because..."
+        assert len(result.top_labels) == 1
+        assert result.top_labels[0].label == "plastic_bottle"
 
     def test_uncertain_result(self):
         result = ClassificationResult(
@@ -37,6 +42,8 @@ class TestClassificationResult:
             is_uncertain=True,
         )
         assert result.is_uncertain is True
+        assert result.explanation == ""
+        assert result.top_labels == []
 
     def test_default_uncertain_is_false(self):
         result = ClassificationResult(
@@ -45,6 +52,13 @@ class TestClassificationResult:
             disposal_tips="Recycle glass",
         )
         assert result.is_uncertain is False
+
+
+class TestLabelInfo:
+    def test_model_fields(self):
+        label = LabelInfo(label="plastic_bottle", confidence=0.94)
+        assert label.label == "plastic_bottle"
+        assert label.confidence == 0.94
 
 
 class TestDiySuggestion:

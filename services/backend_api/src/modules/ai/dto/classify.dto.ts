@@ -10,11 +10,18 @@ export class ClassifyDto {
   image_url?: string;
 }
 
+export interface LabelInfo {
+  label: string;
+  confidence: number;
+}
+
 export interface ClassificationResult {
   category: string;
   confidence: number;
   disposal_tips: string;
   is_uncertain: boolean;
+  explanation: string;
+  top_labels: LabelInfo[];
 }
 
 export interface DiySuggestion {

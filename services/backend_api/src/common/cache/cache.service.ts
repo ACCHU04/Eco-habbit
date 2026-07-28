@@ -23,6 +23,14 @@ export const CacheKeys = {
   home: {
     dashboard: (userId: string) => `home:dashboard:${userId}`,
   },
+  campus: {
+    list: () => 'campus:list:active',
+    bySlug: (slug: string) => `campus:slug:${slug}`,
+  },
+  disposal: {
+    tips: (category: string) => `disposal:tips:${category}`,
+    all: () => 'disposal:tips:all',
+  },
 } as const;
 
 export const CacheTTL = {
@@ -30,6 +38,8 @@ export const CacheTTL = {
   FEED: 30_000,
   DIY: 300_000,
   DASHBOARD: 60_000,
+  CAMPUS: 300_000,
+  DISPOSAL: 300_000,
 } as const;
 
 @Injectable()

@@ -11,6 +11,13 @@ void main() {
           'confidence': 0.94,
           'disposal_tips': 'Rinse and recycle.',
           'is_uncertain': false,
+          'explanation': 'I identified this as plastic because the image '
+              'most closely resembles **plastic_bottle** (94% confidence), '
+              'followed by **bottle** (3%).',
+          'top_labels': [
+            {'label': 'plastic_bottle', 'confidence': 0.94},
+            {'label': 'bottle', 'confidence': 0.03},
+          ],
         },
         'diy_suggestions': [
           {
@@ -32,6 +39,10 @@ void main() {
       expect(result.confidence, 0.94);
       expect(result.disposalTips, 'Rinse and recycle.');
       expect(result.isUncertain, false);
+      expect(result.explanation, contains('plastic_bottle'));
+      expect(result.topLabels.length, 2);
+      expect(result.topLabels[0].label, 'plastic_bottle');
+      expect(result.topLabels[0].confidence, 0.94);
       expect(result.diySuggestions.length, 1);
       expect(result.diySuggestions[0].title, 'Bottle Planter');
       expect(result.cached, false);
@@ -43,7 +54,17 @@ void main() {
       expect(result.category, 'others');
       expect(result.confidence, 0.0);
       expect(result.isUncertain, true);
+      expect(result.explanation, '');
+      expect(result.topLabels, isEmpty);
       expect(result.diySuggestions, isEmpty);
+    });
+  });
+
+  group('LabelInfo', () {
+    test('parses from JSON', () {
+      final label = LabelInfo.fromJson({'label': 'plastic_bottle', 'confidence': 0.94});
+      expect(label.label, 'plastic_bottle');
+      expect(label.confidence, 0.94);
     });
   });
 
@@ -65,6 +86,8 @@ void main() {
       expect(data.confidence, 0.88);
       expect(data.disposalTips, 'Recycle in glass bin.');
       expect(data.isUncertain, false);
+      expect(data.explanation, '');
+      expect(data.topLabels, isEmpty);
       expect(data.diySuggestions, isEmpty);
     });
   });

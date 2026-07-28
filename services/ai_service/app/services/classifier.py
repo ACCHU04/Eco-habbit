@@ -7,7 +7,7 @@ import httpx
 from PIL import Image
 import numpy as np
 
-from app.models import WasteCategory, ClassificationResult
+from app.models import WasteCategory, ClassificationResult, LabelInfo
 
 # Lazy-load model
 _model = None
@@ -50,7 +50,7 @@ DISPOSAL_TIPS = {
     WasteCategory.others: "Check with campus waste management for proper disposal instructions.",
 }
 
-CONFIDENCE_THRESHOLD = 0.80
+CONFIDENCE_THRESHOLD = float(os.environ.get("CONFIDENCE_THRESHOLD", "0.80"))
 
 
 def _get_model():
@@ -85,6 +85,34 @@ def _map_to_waste_category(imagenet_label: str) -> WasteCategory:
         if key in label_lower:
             return category
     return WasteCategory.others
+
+
+def _build_explanation(
+    category: WasteCategory,
+    top_labels: list[LabelInfo],
+) -> str:
+    category_label = category.value.replace("_", " ")
+    if not top_labels:
+        return f"I identified this as {category_label}."
+
+    primary = top_labels[0].label.replace("_", " ")
+    primary_pct = round(top_labels[0].confidence * 100)
+
+    if len(top_labels) == 1:
+        return (
+            f"I identified this as {category_label} because the image "
+            f"closely resembles **{primary}** ({primary_pct}% confidence)."
+        )
+
+    rest = ", ".join(
+        f"**{l.label.replace('_', ' ')}** ({round(l.confidence * 100)}%)"
+        for l in top_labels[1:]
+    )
+    return (
+        f"I identified this as {category_label} because the image "
+        f"most closely resembles **{primary}** ({primary_pct}% confidence), "
+        f"followed by {rest}."
+    )
 
 
 async def classify_image_from_url(image_url: str) -> ClassificationResult:
@@ -134,12 +162,16 @@ async def _classify_bytes(
         waste_category = WasteCategory.plastic
         top_confidence = 0.9450
         is_uncertain = False
+        top_labels = []
+        explanation = _build_explanation(waste_category, top_labels)
 
         result = ClassificationResult(
             category=waste_category,
             confidence=top_confidence,
             disposal_tips=DISPOSAL_TIPS[waste_category],
             is_uncertain=is_uncertain,
+            explanation=explanation,
+            top_labels=top_labels,
         )
     else:
         from tensorflow.keras.applications.mobilenet_v2 import (
@@ -158,6 +190,12 @@ async def _classify_bytes(
         waste_category = _map_to_waste_category(top_label)
         is_uncertain = top_confidence < CONFIDENCE_THRESHOLD
 
+        top_labels = [
+            LabelInfo(label=item[1], confidence=round(float(item[2]), 4))
+            for item in decoded
+        ]
+        explanation = _build_explanation(waste_category, top_labels)
+
         result = ClassificationResult(
             category=waste_category,
             confidence=round(top_confidence, 4),
@@ -165,6 +203,8 @@ async def _classify_bytes(
                 waste_category, DISPOSAL_TIPS[WasteCategory.others]
             ),
             is_uncertain=is_uncertain,
+            explanation=explanation,
+            top_labels=top_labels,
         )
 
     if cache:

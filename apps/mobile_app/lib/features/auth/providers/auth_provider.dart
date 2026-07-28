@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile_app/core/services/analytics_service.dart';
 import 'package:mobile_app/core/services/api_client.dart';
 import 'package:mobile_app/core/services/storage_service.dart';
 import 'package:mobile_app/features/auth/data/auth_repository.dart';
@@ -278,6 +279,10 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
 
 final storageServiceProvider = Provider<StorageService>((ref) {
   throw UnimplementedError('Must be overridden in ProviderScope');
+});
+
+final analyticsServiceProvider = Provider<AnalyticsService>((ref) {
+  return AnalyticsService();
 });
 
 final apiClientProvider = Provider<ApiClient>((ref) {
