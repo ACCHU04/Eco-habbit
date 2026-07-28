@@ -30,6 +30,7 @@ import 'package:mobile_app/features/quests/screens/quests_screen.dart';
 import 'package:mobile_app/features/coins/screens/wallet_screen.dart';
 import 'package:mobile_app/features/passport/screens/passport_screen.dart';
 import 'package:mobile_app/features/passport/screens/activity_timeline_screen.dart';
+import 'package:mobile_app/features/engagement/screens/engagement_hub_screen.dart';
 import 'package:mobile_app/core/widgets/eco_bottom_nav.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -196,6 +197,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/passport/timeline',
         builder: (context, state) => const ActivityTimelineScreen(),
+      ),
+      GoRoute(
+        path: '/engage',
+        builder: (context, state) => const EngagementHubScreen(),
       ),
     ],
   );

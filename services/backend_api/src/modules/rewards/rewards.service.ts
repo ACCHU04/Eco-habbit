@@ -39,6 +39,29 @@ export const BADGE_CRITERIA: Record<
   community_star: { action: 'post_community', threshold: 10 },
   campus_champion: { action: 'complete_sale', threshold: 20 },
   eco_warrior: { action: 'recycle_item', threshold: 50 },
+  upcycler: { action: 'complete_diy', threshold: 15 },
+  donor: { action: 'complete_donation', threshold: 10 },
+  marketplace_expert: { action: 'complete_sale', threshold: 50 },
+  challenge_winner: { action: 'challenge_won', threshold: 1 },
+  friend_maker: { action: 'friend_added', threshold: 5 },
+  daily_warrior: { action: 'ai_scan', threshold: 30 },
+  green_legend: { action: 'recycle_item', threshold: 100 },
+};
+
+export const ACHIEVEMENT_DEFINITIONS: Record<
+  string,
+  { title: string; description: string; target: number; icon: string }
+> = {
+  first_steps: { title: 'First Steps', description: 'Complete your first action', target: 1, icon: '🌱' },
+  active_week: { title: 'Active Week', description: 'Earn points 7 days in a row', target: 7, icon: '🔥' },
+  community_builder: { title: 'Community Builder', description: 'Create 20 community posts', target: 20, icon: '💬' },
+  recycling_pro: { title: 'Recycling Pro', description: 'Recycle 100 items', target: 100, icon: '♻️' },
+  marketplace_king: { title: 'Marketplace King', description: 'Complete 25 sales', target: 25, icon: '👑' },
+  diy_master: { title: 'DIY Master', description: 'Complete 10 DIY projects', target: 10, icon: '🎨' },
+  social_butterfly: { title: 'Social Butterfly', description: 'Add 10 friends', target: 10, icon: '🦋' },
+  hostel_champion: { title: 'Hostel Champion', description: 'Win 3 hostel battles', target: 3, icon: '🏆' },
+  challenge_crusher: { title: 'Challenge Crusher', description: 'Win 10 friend challenges', target: 10, icon: '💪' },
+  eco_legend: { title: 'Eco Legend', description: 'Earn 10,000 total points', target: 10000, icon: '🌍' },
 };
 
 @Injectable()
@@ -207,6 +230,81 @@ export class RewardsService {
             { onConflict: 'user_id,badge_type' },
           );
       }
+    }
+  }
+
+  async getAchievements(userId: string) {
+    try {
+      const { data, error } = await this.supabase
+        .from('user_achievements')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw new Error(error.message);
+
+      const achievements = Object.entries(ACHIEVEMENT_DEFINITIONS).map(
+        ([key, def]) => {
+          const existing = data?.find((a: any) => a.achievement_key === key);
+          return {
+            key,
+            title: def.title,
+            description: def.description,
+            icon: def.icon,
+            target: def.target,
+            current: existing?.current_value || 0,
+            completed: existing?.completed_at != null,
+          };
+        },
+      );
+
+      return { success: true, data: achievements };
+    } catch (_) {
+      return { success: true, data: [] };
+    }
+  }
+
+  async updateAchievementProgress(userId: string, achievementKey: string, increment: number = 1) {
+    try {
+      const def = ACHIEVEMENT_DEFINITIONS[achievementKey];
+      if (!def) throw new Error('Unknown achievement');
+
+      const { data: existing } = await this.supabase
+        .from('user_achievements')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('achievement_key', achievementKey)
+        .maybeSingle();
+
+      const currentValue = (existing?.current_value || 0) + increment;
+
+      if (existing) {
+        const updateData: any = { current_value: currentValue };
+        if (currentValue >= def.target && !existing.completed_at) {
+          updateData.completed_at = new Date().toISOString();
+        }
+
+        await this.supabase
+          .from('user_achievements')
+          .update(updateData)
+          .eq('id', existing.id);
+      } else {
+        const insertData: any = {
+          user_id: userId,
+          achievement_key: achievementKey,
+          current_value: currentValue,
+          target_value: def.target,
+        };
+        if (currentValue >= def.target) {
+          insertData.completed_at = new Date().toISOString();
+        }
+
+        await this.supabase.from('user_achievements').insert(insertData);
+      }
+
+      return { success: true };
+    } catch (_) {
+      return { success: true };
     }
   }
 }

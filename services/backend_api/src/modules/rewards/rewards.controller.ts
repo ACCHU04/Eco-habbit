@@ -79,4 +79,12 @@ export class RewardsController {
       limit ? parseInt(limit, 10) : undefined,
     );
   }
+
+  @Get('achievements')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get user achievements with progress' })
+  async getAchievements(@Req() req: any) {
+    return this.rewardsService.getAchievements(req.user.id);
+  }
 }

@@ -22,6 +22,16 @@ export class UpdateUserDto {
   @IsOptional()
   bio?: string;
 
+  @ApiPropertyOptional({ example: 'Block A' })
+  @IsString()
+  @IsOptional()
+  hostel?: string;
+
+  @ApiPropertyOptional({ example: 'Computer Science' })
+  @IsString()
+  @IsOptional()
+  department?: string;
+
   @ApiPropertyOptional({ enum: ['student', 'ngo', 'organization', 'admin'] })
   @IsEnum(['student', 'ngo', 'organization', 'admin'])
   @IsOptional()

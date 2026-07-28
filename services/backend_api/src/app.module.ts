@@ -14,6 +14,9 @@ import { HomeModule } from './modules/home/home.module';
 import { QuestsModule } from './modules/quests/quests.module';
 import { CoinsModule } from './modules/coins/coins.module';
 import { PassportModule } from './modules/passport/passport.module';
+import { LeaderboardsModule } from './modules/leaderboards/leaderboards.module';
+import { HostelsModule } from './modules/hostels/hostels.module';
+import { ChallengesModule } from './modules/challenges/challenges.module';
 import { SupabaseModule } from './config/supabase.module';
 import { FirebaseModule } from './config/firebase.module';
 
@@ -34,6 +37,9 @@ import { FirebaseModule } from './config/firebase.module';
     QuestsModule,
     CoinsModule,
     PassportModule,
+    LeaderboardsModule,
+    HostelsModule,
+    ChallengesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

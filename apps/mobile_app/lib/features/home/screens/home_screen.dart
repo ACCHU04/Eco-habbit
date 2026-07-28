@@ -162,6 +162,14 @@ class HomeScreen extends ConsumerWidget {
                   onTap: () => context.push('/diy'),
                 ),
               ),
+              const SizedBox(width: EcoTokens.spacing3),
+              Expanded(
+                child: _QuickAction(
+                  icon: Icons.leaderboard_outlined,
+                  label: 'Social',
+                  onTap: () => context.push('/engage'),
+                ),
+              ),
             ],
           ),
         ],
