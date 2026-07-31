@@ -9,4 +9,5 @@ class AppConfig {
   );
   static const String appName = 'EcoHabit';
   static const String appVersion = '2.0.0';
+  static const String firebaseApiKey = 'AIzaSyDK_NqAKNoEQQln0NHkRuOOXvf5ZTRcn6E';
 }

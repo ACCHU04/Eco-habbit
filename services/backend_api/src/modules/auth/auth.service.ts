@@ -105,20 +105,42 @@ export class AuthService {
 
   async googleLogin(dto: CreateGoogleDto) {
     try {
-      const decodedToken = await this.auth.verifyIdToken(dto.id_token);
+      let uid: string;
+      let email = dto.email || '';
+      let name = dto.full_name || '';
+
+      if (dto.id_token) {
+        const decodedToken = await this.auth.verifyIdToken(dto.id_token);
+        uid = decodedToken.uid;
+        email = decodedToken.email || email;
+        name = decodedToken.name || name;
+      } else if (dto.access_token) {
+        const tokenResp = await fetch(
+          `https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(dto.access_token)}`,
+        );
+        if (!tokenResp.ok) {
+          throw new UnauthorizedException('Invalid Google token');
+        }
+        const tokenInfo = (await tokenResp.json()) as Record<string, string>;
+        uid = `google_${tokenInfo.sub}`;
+        email = tokenInfo.email || email;
+        name = tokenInfo.name || name;
+      } else {
+        throw new UnauthorizedException('Invalid Google token');
+      }
 
       try {
         const { data: existingUser } = await this.supabase
           .from('users')
           .select('*')
-          .eq('id', decodedToken.uid)
+          .eq('id', uid)
           .single();
 
         if (!existingUser) {
           await this.supabase.from('users').insert({
-            id: decodedToken.uid,
-            email: decodedToken.email,
-            full_name: decodedToken.name || '',
+            id: uid,
+            email,
+            full_name: name,
             college: '',
             role: 'student',
           });
@@ -127,13 +149,13 @@ export class AuthService {
         this.logger.warn(`Supabase sync warning: ${(dbErr as Error).message}`);
       }
 
-      const customToken = await this.auth.createCustomToken(decodedToken.uid);
+      const customToken = await this.auth.createCustomToken(uid);
 
       return {
         success: true,
         data: {
-          uid: decodedToken.uid,
-          email: decodedToken.email,
+          uid,
+          email,
           custom_token: customToken,
         },
       };

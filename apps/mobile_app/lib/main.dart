@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -44,18 +46,29 @@ void main() async {
     final apiClient = ApiClient(storage);
     final authRepository = AuthRepository(apiClient);
 
-    runApp(
-      ProviderScope(
-        overrides: [
-          storageServiceProvider.overrideWithValue(storage),
-          apiClientProvider.overrideWithValue(apiClient),
-          authRepositoryProvider.overrideWithValue(authRepository),
-          authProvider.overrideWith(
-            (ref) => AuthNotifier(authRepository, storage, ref),
+    runZonedGuarded(
+      () {
+        runApp(
+          ProviderScope(
+            overrides: [
+              storageServiceProvider.overrideWithValue(storage),
+              apiClientProvider.overrideWithValue(apiClient),
+              authRepositoryProvider.overrideWithValue(authRepository),
+              authProvider.overrideWith(
+                (ref) => AuthNotifier(authRepository, storage, ref),
+              ),
+            ],
+            child: const EcoHabitApp(),
           ),
-        ],
-        child: const EcoHabitApp(),
-      ),
+        );
+      },
+      (error, stack) {
+        debugPrint('Runtime error: $error');
+        debugPrintStack(stackTrace: stack);
+        if (firebaseAvailable) {
+          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        }
+      },
     );
   } catch (e, st) {
     debugPrint('App initialization failed: $e');

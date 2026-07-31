@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_app/core/services/analytics_service.dart';
 import 'package:mobile_app/core/services/api_client.dart';
@@ -37,12 +38,30 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
 
   AuthState get authState => _authState;
 
+  static FirebaseAuth? _tryFirebaseAuth() {
+    try {
+      Firebase.app();
+      return FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _init() async {
     _authState = AuthState.loading;
     state = const AsyncValue.loading();
 
+    final auth = _tryFirebaseAuth();
+
     try {
-      var firebaseUser = FirebaseAuth.instance.currentUser;
+      if (auth == null) {
+        await _storage.clearAuth();
+        _authState = AuthState.unauthenticated;
+        state = const AsyncValue.data(AuthData());
+        return;
+      }
+
+      var firebaseUser = auth.currentUser;
 
       if (firebaseUser == null) {
         final customToken = _storage.getFirebaseCustomToken();
@@ -53,7 +72,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
         }
 
         try {
-          final credential = await FirebaseAuth.instance.signInWithCustomToken(customToken);
+          final credential = await auth.signInWithCustomToken(customToken);
           firebaseUser = credential.user;
         } catch (_) {
           await _storage.clearAuth();
@@ -102,7 +121,9 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
   }
 
   Future<String?> refreshIdToken() async {
-    final user = FirebaseAuth.instance.currentUser;
+    final auth = _tryFirebaseAuth();
+    if (auth == null) return null;
+    final user = auth.currentUser;
     if (user == null) return null;
     try {
       final idToken = await user.getIdToken(true);
@@ -262,18 +283,37 @@ class AuthNotifier extends StateNotifier<AsyncValue<AuthData>> {
     print('Auth error details: $e');
     if (e is DioException) {
       final data = e.response?.data;
+      if (data is Map && data['error'] != null && data['error'] is Map) {
+        final msg = data['error']['message'];
+        if (msg != null && msg is String) return msg;
+      }
       if (data is Map && data['message'] != null) {
         final msg = data['message'];
         if (msg is List) return msg.join(', ');
         return msg.toString();
       }
-      if (e.response?.statusCode == 409) return 'Email already registered';
-      if (e.response?.statusCode == 401) return 'Invalid credentials';
-      if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
+      final code = e.response?.statusCode;
+      if (code == 409) return 'Email already registered';
+      if (code == 401) return 'Invalid credentials';
+      if (code == 502 || code == 503) {
+        return 'Server is starting up — please wait a moment and try again.';
+      }
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
         return 'Connection timeout. Check your network.';
       }
+      if (e.type == DioExceptionType.connectionError) {
+        return 'Cannot reach server. Check your internet connection.';
+      }
+      if (code != null) {
+        return 'Something went wrong (error $code). Please try again.';
+      }
+      return 'Network error. Please try again.';
     }
-    return 'Something went wrong. Please try again.';
+    if (e is FirebaseException) {
+      return 'Firebase error: ${e.message ?? "sign-in unavailable"}. Please try again.';
+    }
+    return '$e'.contains('canceled') ? 'Sign-in cancelled.' : 'Error: $e';
   }
 }
 
