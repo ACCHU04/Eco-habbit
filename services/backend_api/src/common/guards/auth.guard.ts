@@ -40,13 +40,25 @@ export class AuthGuard implements CanActivate {
         email: decodedToken.email,
       };
 
+      let role = 'student';
       const { data: profile } = await this.supabase
         .from('users')
         .select('role')
         .eq('id', decodedToken.uid)
-        .single();
+        .maybeSingle();
 
-      request.user.role = profile?.role || 'student';
+      if (profile) {
+        role = profile.role;
+      } else if (decodedToken.email) {
+        const { data: byEmail } = await this.supabase
+          .from('users')
+          .select('role')
+          .eq('email', decodedToken.email)
+          .maybeSingle();
+        if (byEmail) role = byEmail.role;
+      }
+
+      request.user.role = role;
 
       return true;
     } catch (error) {
