@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoHabit — Circular Economy for College Students</title>
+  <meta name="description" content="EcoHabit is an AI-powered circular economy platform that helps college students buy, sell, donate, and recycle products while learning sustainability and entrepreneurship." />
+  <meta property="og:title" content="EcoHabit — Circular Economy for College Students" />
+  <meta property="og:description" content="Turn your campus into a circular economy. Buy, sell, donate and recycle with AI-powered sustainability tracking." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ── NAV ─────────────────────────────────────────────────────── -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a href="#" class="nav__brand" aria-label="EcoHabit home">
+        <span class="nav__logo-icon">♻</span>
+        <span class="nav__logo-text">EcoHabit</span>
+      </a>
+      <nav class="nav__links" aria-label="Main navigation">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#impact">Impact</a>
+        <a href="#testimonials">Stories</a>
+      </nav>
+      <div class="nav__cta">
+        <a href="#download" class="btn btn--ghost btn--sm">Log in</a>
+        <a href="#download" class="btn btn--primary btn--sm">Get the app</a>
+      </div>
+      <button class="nav__hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <!-- Mobile menu -->
+    <div class="nav__mobile" id="mobileMenu" aria-hidden="true">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#impact">Impact</a>
+      <a href="#testimonials">Stories</a>
+      <a href="#download" class="btn btn--primary btn--sm">Get the app</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- ── HERO ──────────────────────────────────────────────────── -->
+    <section class="hero" id="hero">
+      <div class="hero__bg-orbs" aria-hidden="true">
+        <div class="orb orb--1"></div>
+        <div class="orb orb--2"></div>
+        <div class="orb orb--3"></div>
+      </div>
+      <div class="container hero__inner">
+        <div class="hero__content">
+          <div class="hero__badge reveal">
+            <span class="badge-dot"></span>
+            AI-powered · Made for campus life
+          </div>
+          <h1 class="hero__title reveal reveal--delay-1">
+            Your campus.<br />
+            <span class="gradient-text">Circular economy.</span>
+          </h1>
+          <p class="hero__subtitle reveal reveal--delay-2">
+            Buy, sell, donate and recycle with fellow students.
+            Earn eco-points, learn sustainability, and make your
+            campus greener — one swap at a time.
+          </p>
+          <div class="hero__actions reveal reveal--delay-3">
+            <a href="#download" class="btn btn--primary btn--lg">
+              <span>Download Free</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="#how-it-works" class="btn btn--outline btn--lg">See how it works</a>
+          </div>
+          <div class="hero__social-proof reveal reveal--delay-4">
+            <div class="avatars" aria-label="Sample users">
+              <div class="avatar-bubble" style="background:#34d399">S</div>
+              <div class="avatar-bubble" style="background:#60a5fa">R</div>
+              <div class="avatar-bubble" style="background:#f472b6">A</div>
+              <div class="avatar-bubble" style="background:#fbbf24">P</div>
+            </div>
+            <p><strong>2,400+</strong> students already swapping</p>
+          </div>
+        </div>
+        <div class="hero__visual reveal reveal--delay-2">
+          <div class="phone-mockup" aria-hidden="true">
+            <div class="phone-mockup__screen">
+              <div class="phone-screen-inner">
+                <div class="ps-header">
+                  <span class="ps-logo">♻ EcoHabit</span>
+                  <span class="ps-points">🌿 480 pts</span>
+                </div>
+                <div class="ps-card">
+                  <div class="ps-card-img">📦</div>
+                  <div class="ps-card-info">
+                    <p class="ps-card-title">Study Desk Lamp</p>
+                    <p class="ps-card-sub">Listed by Priya · 2nd year</p>
+                    <span class="ps-tag">♻ Donate</span>
+                  </div>
+                </div>
+                <div class="ps-card">
+                  <div class="ps-card-img ps-card-img--2">🎒</div>
+                  <div class="ps-card-info">
+                    <p class="ps-card-title">Engineering Textbooks</p>
+                    <p class="ps-card-sub">Listed by Arjun · 3rd year</p>
+                    <span class="ps-tag ps-tag--sell">💸 ₹200</span>
+                  </div>
+                </div>
+                <div class="ps-stats-row">
+                  <div class="ps-stat"><span class="ps-stat-n">12</span><span class="ps-stat-l">Listings</span></div>
+                  <div class="ps-stat"><span class="ps-stat-n">8</span><span class="ps-stat-l">Swaps</span></div>
+                  <div class="ps-stat"><span class="ps-stat-n">3.2kg</span><span class="ps-stat-l">CO₂ saved</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="floating-chip chip--1">🌱 +50 eco-points</div>
+          <div class="floating-chip chip--2">✅ Swap complete!</div>
+          <div class="floating-chip chip--3">🤖 AI matched!</div>
+        </div>
+      </div>
+      <div class="hero__scroll-hint" aria-hidden="true">
+        <span></span>
+      </div>
+    </section>
+
+    <!-- ── TRUST BAR ──────────────────────────────────────────────── -->
+    <section class="trust-bar">
+      <div class="container">
+        <p class="trust-bar__label">Trusted by students at</p>
+        <div class="trust-bar__logos">
+          <span>IIT Bombay</span>
+          <span>NIT Trichy</span>
+          <span>VIT Vellore</span>
+          <span>BITS Pilani</span>
+          <span>Anna University</span>
+          <span>DTU Delhi</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FEATURES ───────────────────────────────────────────────── -->
+    <section class="features" id="features">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-eyebrow">Why EcoHabit?</span>
+          <h2 class="section-title">Everything you need<br />to go circular</h2>
+          <p class="section-subtitle">One platform. Multiple ways to reduce waste and earn rewards.</p>
+        </div>
+        <div class="features__grid">
+
+          <article class="feature-card reveal" style="--delay: 0ms">
+            <div class="feature-card__icon feature-card__icon--green">🛍️</div>
+            <h3>Marketplace</h3>
+            <p>Buy and sell second-hand items within your campus community. From textbooks to lab equipment — find what you need affordably.</p>
+          </article>
+
+          <article class="feature-card reveal" style="--delay: 80ms">
+            <div class="feature-card__icon feature-card__icon--blue">🎁</div>
+            <h3>Donate & Gift</h3>
+            <p>Pass on items you no longer need. Donating earns bonus eco-points and helps juniors get a head start without spending money.</p>
+          </article>
+
+          <article class="feature-card reveal" style="--delay: 160ms">
+            <div class="feature-card__icon feature-card__icon--teal">♻️</div>
+            <h3>Recycle Hub</h3>
+            <p>Locate nearest recycling drop-off points. Our AI categorises your waste and tells you exactly how to dispose of it responsibly.</p>
+          </article>
+
+          <article class="feature-card reveal" style="--delay: 240ms">
+            <div class="feature-card__icon feature-card__icon--purple">🤖</div>
+            <h3>AI Matching</h3>
+            <p>MobileNetV2-powered image recognition identifies items instantly. Smart matching suggests the best buyers or donors for your listing.</p>
+          </article>
+
+          <article class="feature-card reveal" style="--delay: 320ms">
+            <div class="feature-card__icon feature-card__icon--amber">🏆</div>
+            <h3>Gamified Learning</h3>
+            <p>Earn eco-points for every sustainable action. Climb leaderboards, unlock badges, and learn entrepreneurship through real transactions.</p>
+          </article>
+
+          <article class="feature-card reveal" style="--delay: 400ms">
+            <div class="feature-card__icon feature-card__icon--rose">🌍</div>
+            <h3>Impact Tracker</h3>
+            <p>See your real-world environmental impact — CO₂ saved, plastic diverted, money saved. Your actions visualised beautifully.</p>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── HOW IT WORKS ───────────────────────────────────────────── -->
+    <section class="how-it-works" id="how-it-works">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-eyebrow">Simple steps</span>
+          <h2 class="section-title">Start in minutes</h2>
+          <p class="section-subtitle">No complicated setup. Just download, list, and start swapping.</p>
+        </div>
+        <div class="steps">
+          <div class="step reveal" style="--delay: 0ms">
+            <div class="step__number">01</div>
+            <div class="step__icon">📲</div>
+            <h3>Download & Sign Up</h3>
+            <p>Create your account with your college email. Verified students only — keeping the community safe and trusted.</p>
+          </div>
+          <div class="step__connector" aria-hidden="true"></div>
+          <div class="step reveal" style="--delay: 120ms">
+            <div class="step__number">02</div>
+            <div class="step__icon">📸</div>
+            <h3>List Your Item</h3>
+            <p>Snap a photo. Our AI identifies the item, suggests a price range, and auto-fills the description. Listing takes under 30 seconds.</p>
+          </div>
+          <div class="step__connector" aria-hidden="true"></div>
+          <div class="step reveal" style="--delay: 240ms">
+            <div class="step__number">03</div>
+            <div class="step__icon">🤝</div>
+            <h3>Connect & Swap</h3>
+            <p>Get matched with interested buyers or donors nearby. Chat, agree, and complete the exchange safely on campus.</p>
+          </div>
+          <div class="step__connector" aria-hidden="true"></div>
+          <div class="step reveal" style="--delay: 360ms">
+            <div class="step__number">04</div>
+            <div class="step__icon">🌿</div>
+            <h3>Earn & Grow</h3>
+            <p>Collect eco-points, watch your sustainability impact grow, and unlock entrepreneur badges as you level up.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── IMPACT STATS ───────────────────────────────────────────── -->
+    <section class="impact" id="impact">
+      <div class="impact__bg" aria-hidden="true"></div>
+      <div class="container">
+        <div class="section-header section-header--light reveal">
+          <span class="section-eyebrow section-eyebrow--light">Real numbers</span>
+          <h2 class="section-title section-title--light">Our collective impact</h2>
+          <p class="section-subtitle section-subtitle--light">Every swap, donation, and recycle adds up to something bigger.</p>
+        </div>
+        <div class="impact__grid">
+          <div class="impact-stat reveal" style="--delay: 0ms">
+            <span class="impact-stat__num" data-target="2400">0</span>
+            <span class="impact-stat__unit">+</span>
+            <p class="impact-stat__label">Active Students</p>
+          </div>
+          <div class="impact-stat reveal" style="--delay: 100ms">
+            <span class="impact-stat__num" data-target="8900">0</span>
+            <span class="impact-stat__unit">+</span>
+            <p class="impact-stat__label">Items Exchanged</p>
+          </div>
+          <div class="impact-stat reveal" style="--delay: 200ms">
+            <span class="impact-stat__num" data-target="4200" data-suffix="kg">0</span>
+            <span class="impact-stat__unit">kg</span>
+            <p class="impact-stat__label">CO₂ Saved</p>
+          </div>
+          <div class="impact-stat reveal" style="--delay: 300ms">
+            <span class="impact-stat__num" data-target="12" data-prefix="₹" data-suffix="L">0</span>
+            <span class="impact-stat__unit">L</span>
+            <p class="impact-stat__label">Money Saved by Students</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TESTIMONIALS ───────────────────────────────────────────── -->
+    <section class="testimonials" id="testimonials">
+      <div class="container">
+        <div class="section-header reveal">
+          <span class="section-eyebrow">Student stories</span>
+          <h2 class="section-title">Loved by students</h2>
+        </div>
+        <div class="testimonials__grid">
+
+          <blockquote class="testimonial-card reveal" style="--delay: 0ms">
+            <div class="testimonial-card__stars" aria-label="5 stars">★★★★★</div>
+            <p>"I sold my old lab coat within an hour of listing! EcoHabit made it so simple — the AI wrote the description for me. Earned ₹300 and 80 eco-points. Definitely recommend."</p>
+            <footer>
+              <div class="avatar-bubble" style="background:#34d399; width:40px; height:40px; font-size:1rem;">S</div>
+              <div>
+                <cite>Sneha R.</cite>
+                <span>2nd Year, Biotech · VIT Vellore</span>
+              </div>
+            </footer>
+          </blockquote>
+
+          <blockquote class="testimonial-card reveal" style="--delay: 100ms">
+            <div class="testimonial-card__stars" aria-label="5 stars">★★★★★</div>
+            <p>"As a first-year student, I saved over ₹2,000 on textbooks by finding seniors on EcoHabit. The gamification makes it addictive — I'm already top-10 on my college leaderboard!"</p>
+            <footer>
+              <div class="avatar-bubble" style="background:#60a5fa; width:40px; height:40px; font-size:1rem;">A</div>
+              <div>
+                <cite>Arjun M.</cite>
+                <span>1st Year, CSE · NIT Trichy</span>
+              </div>
+            </footer>
+          </blockquote>
+
+          <blockquote class="testimonial-card reveal" style="--delay: 200ms">
+            <div class="testimonial-card__stars" aria-label="5 stars">★★★★★</div>
+            <p>"Our college's sustainability club uses EcoHabit to organise donation drives. The impact tracker showed we collectively saved 340 kg of CO₂ last semester. Incredible tool!"</p>
+            <footer>
+              <div class="avatar-bubble" style="background:#f472b6; width:40px; height:40px; font-size:1rem;">P</div>
+              <div>
+                <cite>Priya K.</cite>
+                <span>3rd Year, Env. Engg · Anna University</span>
+              </div>
+            </footer>
+          </blockquote>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── DOWNLOAD CTA ───────────────────────────────────────────── -->
+    <section class="download-cta" id="download">
+      <div class="download-cta__bg" aria-hidden="true">
+        <div class="orb orb--cta-1"></div>
+        <div class="orb orb--cta-2"></div>
+      </div>
+      <div class="container download-cta__inner">
+        <div class="download-cta__content reveal">
+          <span class="section-eyebrow section-eyebrow--light">Ready to start?</span>
+          <h2 class="section-title section-title--light">Join your campus<br />circular economy</h2>
+          <p class="section-subtitle section-subtitle--light">Free to download. No credit card. Just scan and swap.</p>
+          <div class="download-cta__buttons">
+            <a href="#" class="store-btn" id="playstore-btn" aria-label="Get it on Google Play">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.18 23.76a1.5 1.5 0 0 0 .82-.25l11.2-6.44-2.46-2.46-9.56 9.15ZM1 1.88v20.24l10.24-10.12L1 1.88Zm20.22 9.32-2.94-1.69-2.8 2.77 2.8 2.77 2.97-1.71a1.5 1.5 0 0 0 0-2.14ZM4 .49l9.56 9.16 2.46-2.46L4.82.49A1.5 1.5 0 0 0 4 .24a1.5 1.5 0 0 0 0 .25Z"/></svg>
+              <div>
+                <span>Get it on</span>
+                <strong>Google Play</strong>
+              </div>
+            </a>
+            <a href="#" class="store-btn" id="appstore-btn" aria-label="Download on the App Store">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.15-2.19 1.28-2.17 3.83.03 3.02 2.65 4.03 2.68 4.04l-.06.25Zm-5.18-17c.77-.93 2.07-1.63 3.14-1.67.14 1.23-.36 2.46-1.1 3.35-.73.9-1.96 1.6-3.16 1.51-.15-1.2.43-2.45 1.12-3.19Z"/></svg>
+              <div>
+                <span>Download on the</span>
+                <strong>App Store</strong>
+              </div>
+            </a>
+          </div>
+        </div>
+        <div class="download-cta__visual reveal reveal--delay-2" aria-hidden="true">
+          <div class="qr-placeholder">
+            <div class="qr-inner">
+              <span>📲</span>
+              <p>Scan to<br />download</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <a href="#" class="nav__brand" aria-label="EcoHabit home">
+          <span class="nav__logo-icon">♻</span>
+          <span class="nav__logo-text">EcoHabit</span>
+        </a>
+        <p>AI-powered circular economy<br />platform for college students.</p>
+        <div class="footer__socials">
+          <a href="#" aria-label="Twitter">𝕏</a>
+          <a href="#" aria-label="Instagram">📸</a>
+          <a href="#" aria-label="LinkedIn">in</a>
+        </div>
+      </div>
+      <div class="footer__links">
+        <div class="footer__col">
+          <h4>Product</h4>
+          <a href="#features">Features</a>
+          <a href="#how-it-works">How it works</a>
+          <a href="#impact">Impact</a>
+          <a href="#download">Download</a>
+        </div>
+        <div class="footer__col">
+          <h4>Company</h4>
+          <a href="#">About</a>
+          <a href="#">Blog</a>
+          <a href="#">Careers</a>
+          <a href="#">Contact</a>
+        </div>
+        <div class="footer__col">
+          <h4>Legal</h4>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div class="container">
+        <p>© 2025 EcoHabit. All rights reserved. · Built with 💚 for a greener campus.</p>
+        <p>Contributed by <strong>Chandrika18</strong></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
