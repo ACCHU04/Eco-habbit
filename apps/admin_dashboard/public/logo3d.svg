@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <!-- Main circle gradient -->
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="50%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <!-- Depth shadow gradient -->
+    <linearGradient id="shadow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#047857" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#022c22" stop-opacity="0.7"/>
+    </linearGradient>
+    <!-- Highlight -->
+    <radialGradient id="highlight" cx="35%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Drop shadow filter -->
+    <filter id="dropShadow" x="-20%" y="-10%" width="140%" height="140%">
+      <feDropShadow dx="4" dy="8" stdDeviation="6" flood-color="#022c22" flood-opacity="0.3"/>
+    </filter>
+    <!-- Leaf shape clip -->
+    <clipPath id="circleClip">
+      <circle cx="100" cy="95" r="62"/>
+    </clipPath>
+  </defs>
+
+  <!-- 3D base disc (offset down for depth) -->
+  <ellipse cx="100" cy="105" rx="64" ry="12" fill="#047857" opacity="0.35"/>
+
+  <!-- Main sphere with shadow -->
+  <g filter="url(#dropShadow)">
+    <!-- Sphere body -->
+    <circle cx="100" cy="90" r="64" fill="url(#grad1)"/>
+    <!-- 3D highlight overlay -->
+    <circle cx="100" cy="90" r="64" fill="url(#highlight)"/>
+
+    <!-- Circular arrow (circular economy symbol) -->
+    <g clip-path="url(#circleClip)" transform="translate(0, -5)">
+      <!-- Outer ring -->
+      <circle cx="100" cy="95" r="50" fill="none" stroke="#fff" stroke-width="5" opacity="0.25"/>
+
+      <!-- Arrow path — three arcs forming a cycle -->
+      <!-- Top arc -->
+      <path d="M 75 60 A 35 35 0 0 1 125 60" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" opacity="0.92"/>
+      <!-- Right arc -->
+      <path d="M 130 70 A 35 35 0 0 1 115 130" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" opacity="0.92"/>
+      <!-- Bottom arc -->
+      <path d="M 110 135 A 35 35 0 0 1 65 120" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" opacity="0.92"/>
+
+      <!-- Arrowheads -->
+      <!-- Top-right arrowhead -->
+      <polygon points="128,55 118,48 120,60" fill="#fff" opacity="0.92"/>
+      <!-- Bottom-left arrowhead -->
+      <polygon points="60,125 52,115 63,118" fill="#fff" opacity="0.92"/>
+
+      <!-- Center leaf -->
+      <g transform="translate(100, 92)">
+        <!-- Leaf body -->
+        <path d="M 0,-28 C 14,-22 22,-8 20,8 C 18,22 8,30 0,32 C -8,30 -18,22 -20,8 C -22,-8 -14,-22 0,-28 Z" fill="#fff" opacity="0.95"/>
+        <!-- Leaf vein -->
+        <path d="M 0,-22 C 0,-10 0,8 0,28" fill="none" stroke="#10b981" stroke-width="2" opacity="0.5"/>
+        <path d="M 0,-8 C 6,-4 10,2 12,8" fill="none" stroke="#10b981" stroke-width="1.5" opacity="0.35"/>
+        <path d="M 0,-8 C -6,-4 -10,2 -12,8" fill="none" stroke="#10b981" stroke-width="1.5" opacity="0.35"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Bottom 3D rim -->
+  <ellipse cx="100" cy="90" rx="64" ry="64" fill="none" stroke="url(#shadow)" stroke-width="4" opacity="0.3"/>
+
+  <!-- Top shine line -->
+  <ellipse cx="80" cy="62" rx="28" ry="6" fill="#fff" opacity="0.12" transform="rotate(-15, 80, 62)"/>
+</svg>

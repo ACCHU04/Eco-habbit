@@ -1,0 +1,10 @@
+# Test-only dependencies for CI
+# Tests do not import TensorFlow — use this file in CI to avoid a heavy install.
+# Production deployments should use requirements.txt (full dependency set).
+pytest==8.3.2
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+python-multipart==0.0.9
+httpx==0.27.0
+pydantic==2.9.0
+python-dotenv==1.0.0
